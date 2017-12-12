@@ -7,12 +7,21 @@ import Toolbar from 'material-ui/Toolbar';
 import Chip from 'material-ui/Chip';
 import { Theme } from 'material-ui/styles';
 import withStyles, { WithStyles } from 'material-ui/styles/withStyles';
+import * as Highcharts from 'highcharts';
+import {
+  ColumnSeries,
+  Chart,
+  HighchartsChart,
+  withHighcharts,
+  XAxis,
+  YAxis
+} from 'react-jsx-highcharts';
 
 const report = require('./report.json');
 
 console.log(report);
 
-const decorate = withStyles((theme: Theme) => ({
+const styles = ((theme: Theme) => ({
   chip: {
     margin: theme.spacing.unit,
     '&:first-child': {
@@ -41,6 +50,23 @@ class App extends React.Component<WithStyles<'chip' | 'chip:first-child'>> {
   render() {
     const {simulation_length: fightLength} = report.sim.statistics;
 
+    const raidDps = report.sim.players.map((player: any) => ({
+      name: player.name,
+      data: player.collected_data.target_metric.mean
+    }));
+
+    raidDps.sort((a: any, b: any) => {
+      if (a.data < b.data) {
+        return 1;
+      }
+
+      if (a.data > b.data) {
+        return -1;
+      }
+
+      return 0;
+    });
+
     return (
       <div>
         <AppBar position="static">
@@ -65,9 +91,21 @@ class App extends React.Component<WithStyles<'chip' | 'chip:first-child'>> {
           <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
             <Typography color="inherit" type="title">Raid Information</Typography>
           </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
+          <ExpansionPanelDetails style={{flexWrap: 'wrap'}}>
             {this.renderChip('Damage (Mean)', report.sim.statistics.total_dmg.mean.toLocaleString())}
             {this.renderChip('DPS (Mean)', report.sim.statistics.raid_dps.mean.toLocaleString())}
+
+            <div style={{flexBasis: '100%'}}>
+              <HighchartsChart>
+                <Chart inverted={true}/>
+
+                <XAxis categories={raidDps.map((record: any) => record.name)} type="category"/>
+
+                <YAxis id="name">
+                  <ColumnSeries data={raidDps.map((record: any) => record.data)}/>
+                </YAxis>
+              </HighchartsChart>
+            </div>
           </ExpansionPanelDetails>
         </ExpansionPanel>
 
@@ -75,7 +113,8 @@ class App extends React.Component<WithStyles<'chip' | 'chip:first-child'>> {
           <ExpansionPanel key={index}>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
               <Typography style={{flexBasis: '20%'}}>{player.name}</Typography>
-              <Typography color="secondary">{player.collected_data.dps.mean.toLocaleString()} DPS</Typography>
+              <Typography color="secondary">{player.collected_data.dps.mean.toLocaleString()}
+                DPS</Typography>
             </ExpansionPanelSummary>
           </ExpansionPanel>
         ))}
@@ -84,4 +123,4 @@ class App extends React.Component<WithStyles<'chip' | 'chip:first-child'>> {
   }
 }
 
-export default decorate<{}>(App);
+export default withHighcharts(withStyles(styles)<{}>(App), Highcharts);
