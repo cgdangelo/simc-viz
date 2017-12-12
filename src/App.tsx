@@ -52,6 +52,7 @@ class App extends React.Component<WithStyles<'chip'>> {
               {this.renderTitleChip('Iterations', report.sim.options.iterations)}
               {this.renderTitleChip('Target Error', report.sim.options.target_error)}
               {this.renderTitleChip('Fight Length', `${fightLength.min.toFixed()} - ${fightLength.max.toFixed()}`)}
+              {this.renderTitleChip('Fight Style', report.sim.options.fight_style)}
             </div>
           </Toolbar>
         </AppBar>
