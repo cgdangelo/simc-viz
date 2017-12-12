@@ -66,15 +66,15 @@ class App extends React.Component<WithStyles<'chip' | 'chip:first-child'>> {
             <Typography color="inherit" type="title">Raid Information</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
-            {this.renderChip('Damage (Mean)', report.sim.statistics.total_dmg.mean)}
-            {this.renderChip('DPS (Mean)', report.sim.statistics.raid_dps.mean)}
+            {this.renderChip('Damage (Mean)', report.sim.statistics.total_dmg.mean.toLocaleString())}
+            {this.renderChip('DPS (Mean)', report.sim.statistics.raid_dps.mean.toLocaleString())}
           </ExpansionPanelDetails>
         </ExpansionPanel>
 
         {report.sim.players.map((player: any, index: number) => (
           <ExpansionPanel key={index}>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography>{player.name}</Typography>
+              <Typography style={{flexBasis: '20%'}}>{player.name}</Typography>
               <Typography color="secondary">{player.collected_data.dps.mean.toLocaleString()} DPS</Typography>
             </ExpansionPanelSummary>
           </ExpansionPanel>
