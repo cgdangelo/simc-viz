@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import ExpansionPanel, { ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
+import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
 import Typography from 'material-ui/Typography';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
@@ -15,11 +15,17 @@ console.log(report);
 const decorate = withStyles((theme: Theme) => ({
   chip: {
     margin: theme.spacing.unit,
+    '&:first-child': {
+      marginLeft: 0,
+    },
+    '&:last-child': {
+      marginRight: 0,
+    },
   },
 }));
 
-class App extends React.Component<WithStyles<'chip'>> {
-  renderTitleChip(label: string, value: {}) {
+class App extends React.Component<WithStyles<'chip' | 'chip:first-child'>> {
+  renderChip(label: string, value: {}) {
     return (
       <Chip
         className={this.props.classes.chip}
@@ -38,36 +44,37 @@ class App extends React.Component<WithStyles<'chip'>> {
     return (
       <div>
         <AppBar position="static">
-          <Toolbar>
-            <Typography color="inherit" type="title">SimulationCraft</Typography>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-start',
-                marginLeft: '1rem',
-                width: '100%',
-              }}
+          <Toolbar style={{justifyContent: 'space-between'}}>
+            <Typography
+              color="inherit"
+              type="title"
             >
-              {this.renderTitleChip('Timestamp', `${report.build_date} ${report.build_time}`)}
-              {this.renderTitleChip('Iterations', report.sim.options.iterations)}
-              {this.renderTitleChip('Target Error', report.sim.options.target_error)}
-              {this.renderTitleChip('Fight Length', `${fightLength.min.toFixed()} - ${fightLength.max.toFixed()}`)}
-              {this.renderTitleChip('Fight Style', report.sim.options.fight_style)}
+              SimulationCraft
+            </Typography>
+            <div style={{display: 'flex'}}>
+              {this.renderChip('Timestamp', `${report.build_date} ${report.build_time}`)}
+              {this.renderChip('Iterations', report.sim.options.iterations)}
+              {this.renderChip('Target Error', report.sim.options.target_error)}
+              {this.renderChip('Fight Length', `${fightLength.min.toFixed()} - ${fightLength.max.toFixed()}`)}
+              {this.renderChip('Fight Style', report.sim.options.fight_style)}
             </div>
           </Toolbar>
         </AppBar>
 
+        <ExpansionPanel>
+          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography color="inherit" type="title">Raid Information</Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            {this.renderChip('Damage (Mean)', report.sim.statistics.total_dmg.mean)}
+            {this.renderChip('DPS (Mean)', report.sim.statistics.raid_dps.mean)}
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+
         {report.sim.players.map((player: any, index: number) => (
           <ExpansionPanel key={index}>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography
-                style={{
-                  flexBasis: '33.3%',
-                  flexShrink: 0,
-                }}
-              >
-                {player.name}
-              </Typography>
+              <Typography>{player.name}</Typography>
               <Typography color="secondary">{player.collected_data.dps.mean.toLocaleString()} DPS</Typography>
             </ExpansionPanelSummary>
           </ExpansionPanel>
