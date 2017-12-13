@@ -47,7 +47,7 @@ const styles = ((theme: Theme) => ({
 
   raidEventsPaper: theme.mixins.gutters({
     paddingTop: theme.spacing.unit * 2,
-  })
+  }),
 }));
 
 class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEventsPaper'>> {
@@ -61,6 +61,43 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
           </Typography>
         }
       />
+    );
+  }
+
+  renderDpsVariance() {
+    const playersByApm = report.sim.players
+      .map((player) => ({
+        name: player.name,
+        apm: (player.collected_data.executed_foreground_actions.mean / player.collected_data.fight_length.mean * 60),
+      }))
+      .sort((a, b) => {
+        if (a.apm < b.apm) {
+          return 1;
+        }
+
+        if (a.apm > b.apm) {
+          return -1;
+        }
+
+        return 0;
+      });
+
+    return (
+      <HighchartsChart>
+        <Chart
+          height={report.sim.players.length * 50}
+          inverted={true}
+        />
+        <XAxis categories={playersByApm.map((player) => player.name)} type="category"/>
+        <YAxis id="stackedApm">
+          <ColumnSeries
+            borderColor={indigo[500]}
+            name="Actions per Minute"
+            data={playersByApm.map((player) => player.apm)}
+          />
+        </YAxis>
+        <Tooltip/>
+      </HighchartsChart>
     );
   }
 
@@ -107,7 +144,7 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
           </Toolbar>
         </AppBar>
 
-        <ExpansionPanel expanded={true}>
+        <ExpansionPanel>
           <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
             <Typography color="inherit" type="title">Raid Summary</Typography>
           </ExpansionPanelSummary>
@@ -144,7 +181,6 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
                   borderWidth={1}
                   height={raidDps.length * 50}
                   inverted={true}
-                  type="boxplot"
                 />
 
                 <XAxis
@@ -163,12 +199,12 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
                 />
 
                 <YAxis
-                  id="playerDps"
+                  id="stackedDps"
                   gridLineColor={indigo[100]}
                   labels={false}
                 >
-                  <ColumnSeries borderColor={indigo[500]} name="DPS" data={stackedBarData}/>
-                  <BoxPlotSeries name="DPS" data={boxPlotData}/>
+                  <ColumnSeries borderColor={indigo[500]} name="Damage per Second" data={stackedBarData}/>
+                  <BoxPlotSeries name="Damage per Second" data={boxPlotData}/>
                 </YAxis>
 
                 <Tooltip/>
@@ -205,6 +241,15 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
                 </List>
               </Paper>
             </div>
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+
+        <ExpansionPanel>
+          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+            <Typography color="inherit" type="title">Actions per Minute / DPS Variance Summary</Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            {this.renderDpsVariance()}
           </ExpansionPanelDetails>
         </ExpansionPanel>
 
