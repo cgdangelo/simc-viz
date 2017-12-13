@@ -16,14 +16,12 @@ import {
   Tooltip,
   withHighcharts,
   XAxis,
-  YAxis
+  YAxis,
 } from 'react-jsx-highcharts';
 
 require('highcharts/highcharts-more')(Highcharts);
 
-const report = require('./report.json');
-
-console.log(report);
+const report: JsonReport = require('./report.json');
 
 const styles = ((theme: Theme) => ({
   chip: {
@@ -54,13 +52,12 @@ class App extends React.Component<WithStyles<'chip'>> {
   render() {
     const {simulation_length: fightLength} = report.sim.statistics;
 
-    const raidDps = report.sim.players.map((player: any) => ({
+    const raidDps = report.sim.players.map((player) => ({
       name: player.name,
-      // data: player.collected_data.timeline_dmg.data
-      dps: player.collected_data.dps
+      dps: player.collected_data.dps,
     }));
 
-    raidDps.sort((a: any, b: any) => {
+    raidDps.sort((a, b) => {
       if (a.dps.max > b.dps.max) {
         return 1;
       }
@@ -72,8 +69,8 @@ class App extends React.Component<WithStyles<'chip'>> {
       return 0;
     });
 
-    const stackedBarData = raidDps.map((record: any) => [record.dps.mean]);
-    const boxPlotData = raidDps.map((record: any) => [record.dps.min, record.dps.q1, record.dps.median, record.dps.q3, record.dps.max]);
+    const stackedBarData = raidDps.map((record) => [record.dps.mean]);
+    const boxPlotData = raidDps.map((record) => [record.dps.min, record.dps.q1, record.dps.median, record.dps.q3, record.dps.max]);
 
     return (
       <div>
@@ -109,7 +106,7 @@ class App extends React.Component<WithStyles<'chip'>> {
               <HighchartsChart>
                 <Chart inverted={true} type="boxplot"/>
 
-                <XAxis categories={raidDps.map((record: any) => record.name)} type="category">
+                <XAxis categories={raidDps.map((record) => record.name)} type="category">
                   <XAxis.Title>Player</XAxis.Title>
                 </XAxis>
 
@@ -125,12 +122,11 @@ class App extends React.Component<WithStyles<'chip'>> {
           </ExpansionPanelDetails>
         </ExpansionPanel>
 
-        {report.sim.players.map((player: any, index: number) => (
+        {raidDps.map((record, index) => (
           <ExpansionPanel key={index}>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography style={{flexBasis: '20%'}}>{player.name}</Typography>
-              <Typography color="secondary">{player.collected_data.dps.mean.toLocaleString()}
-                DPS</Typography>
+              <Typography style={{flexBasis: '20%'}}>{record.name}</Typography>
+              <Typography color="secondary">{record.dps.mean.toLocaleString()} DPS</Typography>
             </ExpansionPanelSummary>
           </ExpansionPanel>
         ))}
@@ -139,5 +135,4 @@ class App extends React.Component<WithStyles<'chip'>> {
   }
 }
 
-export default withHighcharts(withStyles(styles)
-  < {} > (App), Highcharts);
+export default withHighcharts(withStyles(styles)<{}>(App), Highcharts);
