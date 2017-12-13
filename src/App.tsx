@@ -64,6 +64,149 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
     );
   }
 
+  renderExpansionPanel(title: string, content: JSX.Element) {
+    return (
+      <ExpansionPanel>
+        {this.renderExpansionPanelTitle(title)}
+
+        <ExpansionPanelDetails style={{flexWrap: 'wrap'}}>
+          {content}
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
+    );
+  }
+
+  renderExpansionPanelTitle(title: string) {
+    return (
+      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+        <Typography color="inherit" type="title">{title}</Typography>
+      </ExpansionPanelSummary>
+    );
+  }
+
+  renderRaidSummary() {
+    const raidDps = report.sim.players.map((player) => ({
+      name: player.name,
+      dps: player.collected_data.dps,
+    }));
+
+    raidDps.sort((a, b) => {
+      if (a.dps.mean < b.dps.mean) {
+        return 1;
+      }
+
+      if (a.dps.mean > b.dps.mean) {
+        return -1;
+      }
+
+      return 0;
+    });
+    const stackedBarData = raidDps.map((record) => [record.dps.mean]);
+    const boxPlotData = raidDps.map((record) => (
+      [record.dps.min, record.dps.q1, record.dps.median, record.dps.q3, record.dps.max]
+    ));
+
+    return this.renderExpansionPanel(
+      'Raid Summary',
+
+      (
+        <div>
+          <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
+            {this.renderChip('Damage (Mean)', report.sim.statistics.total_dmg.mean.toLocaleString())}
+            {this.renderChip('DPS (Mean)', report.sim.statistics.raid_dps.mean.toLocaleString())}
+          </div>
+          <div style={{flexBasis: '100%', marginBottom: '1rem'}}>
+            <HighchartsChart
+              colors={[
+                indigo[200],
+                indigo[500],
+              ]}
+              plotOptions={{
+                boxplot: {
+                  fillColor: 'rgba(0, 0, 0, 0)',
+                  whiskerLength: '50%',
+                },
+              }}
+              title={{
+                style: {
+                  color: grey[900],
+                  fontFamily: 'Roboto, sans-serif',
+                  fontWeight: 'bold',
+                },
+                text: 'Damage per Second',
+              }}
+            >
+              <Chart
+                backgroundColor={indigo[50]}
+                borderColor={indigo[500]}
+                borderWidth={1}
+                height={raidDps.length * 50}
+                inverted={true}
+              />
+
+              <XAxis
+                categories={raidDps.map((record) => record.name)}
+                labels={{
+                  style: {
+                    color: grey[700],
+                    fontFamily: 'Roboto',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                  },
+                }}
+                lineColor={indigo[500]}
+                tickColor={indigo[500]}
+                type="category"
+              />
+
+              <YAxis
+                id="stackedDps"
+                gridLineColor={indigo[100]}
+                labels={false}
+              >
+                <ColumnSeries borderColor={indigo[500]} name="Damage per Second" data={stackedBarData}/>
+                <BoxPlotSeries name="Damage per Second" data={boxPlotData}/>
+              </YAxis>
+
+              <Tooltip/>
+            </HighchartsChart>
+          </div>
+
+          <Divider/>
+
+          <div style={{flexBasis: '100%'}}>
+            <Paper className={this.props.classes.raidEventsPaper}>
+              <Typography type="headline" component="h3">Raid Events</Typography>
+              <List>
+                {report.sim.raid_events.map((raidEvent, index) => {
+                  const {name, ...conditions} = raidEvent;
+
+                  let conditionsStringPieces = [];
+
+                  for (const key in conditions) {
+                    if (conditions.hasOwnProperty(key)) {
+                      conditionsStringPieces.push(`${key}=${conditions[key]}`);
+                    }
+                  }
+
+                  return (
+                    <ListItem key={index}>
+                      <ListItemText
+                        className={this.props.classes.raidEventItem}
+                        primary={name}
+                        secondary={conditionsStringPieces.join(',')}
+                      />
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Paper>
+          </div>
+        </div>
+      ),
+    );
+  }
+
   renderDpsVariance() {
     const playersByApm = report.sim.players
       .map((player) => ({
@@ -82,47 +225,31 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
         return 0;
       });
 
-    return (
-      <HighchartsChart>
-        <Chart
-          height={report.sim.players.length * 50}
-          inverted={true}
-        />
-        <XAxis categories={playersByApm.map((player) => player.name)} type="category"/>
-        <YAxis id="stackedApm">
-          <ColumnSeries
-            borderColor={indigo[500]}
-            name="Actions per Minute"
-            data={playersByApm.map((player) => player.apm)}
+    return this.renderExpansionPanel(
+      'Actions per Minute / DPS Variance Summary',
+
+      (
+        <HighchartsChart>
+          <Chart
+            height={report.sim.players.length * 50}
+            inverted={true}
           />
-        </YAxis>
-        <Tooltip/>
-      </HighchartsChart>
+          <XAxis categories={playersByApm.map((player) => player.name)} type="category"/>
+          <YAxis id="stackedApm">
+            <ColumnSeries
+              borderColor={indigo[500]}
+              name="Actions per Minute"
+              data={playersByApm.map((player) => player.apm)}
+            />
+          </YAxis>
+          <Tooltip/>
+        </HighchartsChart>
+      ),
     );
   }
 
   render() {
     const {simulation_length: fightLength} = report.sim.statistics;
-
-    const raidDps = report.sim.players.map((player) => ({
-      name: player.name,
-      dps: player.collected_data.dps,
-    }));
-
-    raidDps.sort((a, b) => {
-      if (a.dps.mean < b.dps.mean) {
-        return 1;
-      }
-
-      if (a.dps.mean > b.dps.mean) {
-        return -1;
-      }
-
-      return 0;
-    });
-
-    const stackedBarData = raidDps.map((record) => [record.dps.mean]);
-    const boxPlotData = raidDps.map((record) => [record.dps.min, record.dps.q1, record.dps.median, record.dps.q3, record.dps.max]);
 
     return (
       <div>
@@ -144,120 +271,15 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
           </Toolbar>
         </AppBar>
 
-        <ExpansionPanel>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-            <Typography color="inherit" type="title">Raid Summary</Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails style={{flexWrap: 'wrap'}}>
-            <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
-              {this.renderChip('Damage (Mean)', report.sim.statistics.total_dmg.mean.toLocaleString())}
-              {this.renderChip('DPS (Mean)', report.sim.statistics.raid_dps.mean.toLocaleString())}
-            </div>
+        {this.renderRaidSummary()}
 
-            <div style={{flexBasis: '100%', marginBottom: '1rem'}}>
-              <HighchartsChart
-                colors={[
-                  indigo[200],
-                  indigo[500],
-                ]}
-                plotOptions={{
-                  boxplot: {
-                    fillColor: 'rgba(0, 0, 0, 0)',
-                    whiskerLength: '50%',
-                  },
-                }}
-                title={{
-                  style: {
-                    color: grey[900],
-                    fontFamily: 'Roboto, sans-serif',
-                    fontWeight: 'bold',
-                  },
-                  text: 'Damage per Second',
-                }}
-              >
-                <Chart
-                  backgroundColor={indigo[50]}
-                  borderColor={indigo[500]}
-                  borderWidth={1}
-                  height={raidDps.length * 50}
-                  inverted={true}
-                />
+        {this.renderDpsVariance()}
 
-                <XAxis
-                  categories={raidDps.map((record) => record.name)}
-                  labels={{
-                    style: {
-                      color: grey[700],
-                      fontFamily: 'Roboto',
-                      fontSize: '1rem',
-                      fontWeight: 'bold',
-                    },
-                  }}
-                  lineColor={indigo[500]}
-                  tickColor={indigo[500]}
-                  type="category"
-                />
-
-                <YAxis
-                  id="stackedDps"
-                  gridLineColor={indigo[100]}
-                  labels={false}
-                >
-                  <ColumnSeries borderColor={indigo[500]} name="Damage per Second" data={stackedBarData}/>
-                  <BoxPlotSeries name="Damage per Second" data={boxPlotData}/>
-                </YAxis>
-
-                <Tooltip/>
-              </HighchartsChart>
-            </div>
-
-            <Divider/>
-
-            <div style={{flexBasis: '100%'}}>
-              <Paper className={this.props.classes.raidEventsPaper}>
-                <Typography type="headline" component="h3">Raid Events</Typography>
-                <List>
-                  {report.sim.raid_events.map((raidEvent, index) => {
-                    const {name, ...conditions} = raidEvent;
-
-                    let conditionsStringPieces = [];
-
-                    for (const key in conditions) {
-                      if (conditions.hasOwnProperty(key)) {
-                        conditionsStringPieces.push(`${key}=${conditions[key]}`);
-                      }
-                    }
-
-                    return (
-                      <ListItem key={index}>
-                        <ListItemText
-                          className={this.props.classes.raidEventItem}
-                          primary={name}
-                          secondary={conditionsStringPieces.join(',')}
-                        />
-                      </ListItem>
-                    );
-                  })}
-                </List>
-              </Paper>
-            </div>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-
-        <ExpansionPanel>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-            <Typography color="inherit" type="title">Actions per Minute / DPS Variance Summary</Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            {this.renderDpsVariance()}
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-
-        {raidDps.map((record, index) => (
+        {report.sim.players.map((player, index) => (
           <ExpansionPanel key={index}>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-              <Typography style={{flexBasis: '20%'}}>{record.name}</Typography>
-              <Typography color="secondary">{record.dps.mean.toLocaleString()} DPS</Typography>
+              <Typography style={{flexBasis: '20%'}}>{player.name}</Typography>
+              <Typography color="secondary">{player.collected_data.dps.mean.toLocaleString()} DPS</Typography>
             </ExpansionPanelSummary>
           </ExpansionPanel>
         ))}
