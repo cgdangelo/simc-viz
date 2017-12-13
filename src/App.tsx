@@ -2,6 +2,7 @@ import * as Highcharts from 'highcharts';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import AppBar from 'material-ui/AppBar';
 import Chip from 'material-ui/Chip';
+import { indigo, grey } from 'material-ui/colors';
 import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
 import { Theme } from 'material-ui/styles';
 import withStyles, { WithStyles } from 'material-ui/styles/withStyles';
@@ -18,6 +19,7 @@ import {
   XAxis,
   YAxis,
 } from 'react-jsx-highcharts';
+import './App.css';
 
 require('highcharts/highcharts-more')(Highcharts);
 
@@ -92,9 +94,9 @@ class App extends React.Component<WithStyles<'chip'>> {
           </Toolbar>
         </AppBar>
 
-        <ExpansionPanel expanded={true}>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography color="inherit" type="title">Raid Information</Typography>
+        <ExpansionPanel>
+          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+            <Typography color="inherit" type="title">Raid Summary</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails style={{flexWrap: 'wrap'}}>
             <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
@@ -103,16 +105,55 @@ class App extends React.Component<WithStyles<'chip'>> {
             </div>
 
             <div style={{flexBasis: '100%'}}>
-              <HighchartsChart>
-                <Chart inverted={true} type="boxplot"/>
+              <HighchartsChart
+                colors={[
+                  indigo[200],
+                  indigo[500],
+                ]}
+                plotOptions={{
+                  boxplot: {
+                    fillColor: 'rgba(0, 0, 0, 0)',
+                    whiskerLength: '50%',
+                  },
+                }}
+                title={{
+                  style: {
+                    color: grey[900],
+                    fontFamily: 'Roboto, sans-serif',
+                    fontWeight: 'bold',
+                  },
+                  text: 'Damage per Second',
+                }}
+              >
+                <Chart
+                  borderColor={indigo[500]}
+                  borderWidth={1}
+                  backgroundColor={indigo[50]}
+                  inverted={true}
+                  type="boxplot"
+                />
 
-                <XAxis categories={raidDps.map((record) => record.name)} type="category">
-                  <XAxis.Title>Player</XAxis.Title>
-                </XAxis>
+                <XAxis
+                  categories={raidDps.map((record) => record.name)}
+                  labels={{
+                    style: {
+                      color: grey[700],
+                      fontFamily: 'Roboto',
+                      fontSize: '1rem',
+                      fontWeight: 'bold',
+                    },
+                  }}
+                  lineColor={indigo[500]}
+                  tickColor={indigo[500]}
+                  type="category"
+                />
 
-                <YAxis id="playerDps">
-                  <YAxis.Title>DPS</YAxis.Title>
-                  <ColumnSeries data={stackedBarData}/>
+                <YAxis
+                  id="playerDps"
+                  gridLineColor={indigo[100]}
+                  labels={false}
+                >
+                  <ColumnSeries borderColor={indigo[500]} name="DPS" data={stackedBarData}/>
                   <BoxPlotSeries name="DPS" data={boxPlotData}/>
                 </YAxis>
 
@@ -124,7 +165,7 @@ class App extends React.Component<WithStyles<'chip'>> {
 
         {raidDps.map((record, index) => (
           <ExpansionPanel key={index}>
-            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
               <Typography style={{flexBasis: '20%'}}>{record.name}</Typography>
               <Typography color="secondary">{record.dps.mean.toLocaleString()} DPS</Typography>
             </ExpansionPanelSummary>
