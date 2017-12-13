@@ -15,7 +15,7 @@ import * as React from 'react';
 import {
   BoxPlotSeries,
   Chart,
-  ColumnSeries,
+  BarSeries,
   HighchartsChart,
   Tooltip,
   withHighcharts,
@@ -36,9 +36,27 @@ Highcharts.setOptions({
     indigo[200],
     indigo[500],
   ],
+  lang: {
+    thousandsSep: ',',
+  },
   plotOptions: {
-    column: {
+    bar: {
       borderColor: indigo[500],
+      dataLabels: {
+        align: 'left',
+        crop: false,
+        enabled: true,
+        format: '{point.y:,.0f}',
+        inside: true,
+        overflow: 'none',
+        padding: 0,
+        style: {
+          color: grey[700],
+          fontFamily: 'Roboto, sans-serif',
+          fontSize: '1rem',
+        },
+        verticalAlign: 'middle',
+      },
     },
     boxplot: {
       fillColor: 'rgba(0, 0, 0, 0)',
@@ -52,6 +70,9 @@ Highcharts.setOptions({
       fontWeight: 'bold',
     },
   },
+  tooltip: {
+    valueDecimals: 1,
+  },
   xAxis: {
     labels: {
       style: {
@@ -60,6 +81,7 @@ Highcharts.setOptions({
         fontSize: '1rem',
         fontWeight: 'bold',
       },
+      y: 5,
     },
     lineColor: indigo[500],
     tickColor: indigo[500],
@@ -166,7 +188,6 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
             >
               <Chart
                 height={raidDps.length * 50}
-                inverted={true}
               />
 
               <XAxis
@@ -178,7 +199,10 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
                 id="stackedDps"
                 labels={false}
               >
-                <ColumnSeries name="Damage per Second" data={stackedBarData}/>
+                <BarSeries
+                  name="Damage per Second"
+                  data={stackedBarData}
+                />
                 <BoxPlotSeries name="Damage per Second" data={boxPlotData}/>
               </YAxis>
 
@@ -246,11 +270,10 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
         <HighchartsChart>
           <Chart
             height={report.sim.players.length * 50}
-            inverted={true}
           />
           <XAxis categories={playersByApm.map((player) => player.name)} type="category"/>
           <YAxis id="stackedApm">
-            <ColumnSeries
+            <BarSeries
               name="Actions per Minute"
               data={playersByApm.map((player) => player.apm)}
             />
