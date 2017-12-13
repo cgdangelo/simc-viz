@@ -1,21 +1,25 @@
-import * as React from 'react';
+import * as Highcharts from 'highcharts';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
-import Typography from 'material-ui/Typography';
 import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
 import Chip from 'material-ui/Chip';
+import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
 import { Theme } from 'material-ui/styles';
 import withStyles, { WithStyles } from 'material-ui/styles/withStyles';
-import * as Highcharts from 'highcharts';
+import Toolbar from 'material-ui/Toolbar';
+import Typography from 'material-ui/Typography';
+import * as React from 'react';
 import {
-  ColumnSeries,
+  BoxPlotSeries,
   Chart,
+  ColumnSeries,
   HighchartsChart,
+  Tooltip,
   withHighcharts,
   XAxis,
   YAxis
 } from 'react-jsx-highcharts';
+
+require('highcharts/highcharts-more')(Highcharts);
 
 const report = require('./report.json');
 
@@ -33,7 +37,7 @@ const styles = ((theme: Theme) => ({
   },
 }));
 
-class App extends React.Component<WithStyles<'chip' | 'chip:first-child'>> {
+class App extends React.Component<WithStyles<'chip'>> {
   renderChip(label: string, value: {}) {
     return (
       <Chip
@@ -52,20 +56,24 @@ class App extends React.Component<WithStyles<'chip' | 'chip:first-child'>> {
 
     const raidDps = report.sim.players.map((player: any) => ({
       name: player.name,
-      data: player.collected_data.target_metric.mean
+      // data: player.collected_data.timeline_dmg.data
+      dps: player.collected_data.dps
     }));
 
     raidDps.sort((a: any, b: any) => {
-      if (a.data < b.data) {
+      if (a.dps.max > b.dps.max) {
         return 1;
       }
 
-      if (a.data > b.data) {
+      if (a.dps.max < b.dps.max) {
         return -1;
       }
 
       return 0;
     });
+
+    const stackedBarData = raidDps.map((record: any) => [record.dps.mean]);
+    const boxPlotData = raidDps.map((record: any) => [record.dps.min, record.dps.q1, record.dps.median, record.dps.q3, record.dps.max]);
 
     return (
       <div>
@@ -87,23 +95,31 @@ class App extends React.Component<WithStyles<'chip' | 'chip:first-child'>> {
           </Toolbar>
         </AppBar>
 
-        <ExpansionPanel>
+        <ExpansionPanel expanded={true}>
           <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
             <Typography color="inherit" type="title">Raid Information</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails style={{flexWrap: 'wrap'}}>
-            {this.renderChip('Damage (Mean)', report.sim.statistics.total_dmg.mean.toLocaleString())}
-            {this.renderChip('DPS (Mean)', report.sim.statistics.raid_dps.mean.toLocaleString())}
+            <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
+              {this.renderChip('Damage (Mean)', report.sim.statistics.total_dmg.mean.toLocaleString())}
+              {this.renderChip('DPS (Mean)', report.sim.statistics.raid_dps.mean.toLocaleString())}
+            </div>
 
             <div style={{flexBasis: '100%'}}>
               <HighchartsChart>
-                <Chart inverted={true}/>
+                <Chart inverted={true} type="boxplot"/>
 
-                <XAxis categories={raidDps.map((record: any) => record.name)} type="category"/>
+                <XAxis categories={raidDps.map((record: any) => record.name)} type="category">
+                  <XAxis.Title>Player</XAxis.Title>
+                </XAxis>
 
-                <YAxis id="name">
-                  <ColumnSeries data={raidDps.map((record: any) => record.data)}/>
+                <YAxis id="playerDps">
+                  <YAxis.Title>DPS</YAxis.Title>
+                  <ColumnSeries data={stackedBarData}/>
+                  <BoxPlotSeries name="DPS" data={boxPlotData}/>
                 </YAxis>
+
+                <Tooltip/>
               </HighchartsChart>
             </div>
           </ExpansionPanelDetails>
@@ -123,4 +139,5 @@ class App extends React.Component<WithStyles<'chip' | 'chip:first-child'>> {
   }
 }
 
-export default withHighcharts(withStyles(styles)<{}>(App), Highcharts);
+export default withHighcharts(withStyles(styles)
+  < {} > (App), Highcharts);
