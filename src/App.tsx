@@ -2,8 +2,11 @@ import * as Highcharts from 'highcharts';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import AppBar from 'material-ui/AppBar';
 import Chip from 'material-ui/Chip';
-import { indigo, grey } from 'material-ui/colors';
+import { grey, indigo } from 'material-ui/colors';
+import Divider from 'material-ui/Divider';
 import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
+import List, { ListItem, ListItemText } from 'material-ui/List';
+import Paper from 'material-ui/Paper';
 import { Theme } from 'material-ui/styles';
 import withStyles, { WithStyles } from 'material-ui/styles/withStyles';
 import Toolbar from 'material-ui/Toolbar';
@@ -35,9 +38,19 @@ const styles = ((theme: Theme) => ({
       marginRight: 0,
     },
   },
+
+  raidEventItem: {
+    '& > p': {
+      fontFamily: 'monospace',
+    },
+  },
+
+  raidEventsPaper: theme.mixins.gutters({
+    paddingTop: theme.spacing.unit * 2,
+  })
 }));
 
-class App extends React.Component<WithStyles<'chip'>> {
+class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEventsPaper'>> {
   renderChip(label: string, value: {}) {
     return (
       <Chip
@@ -60,11 +73,11 @@ class App extends React.Component<WithStyles<'chip'>> {
     }));
 
     raidDps.sort((a, b) => {
-      if (a.dps.max > b.dps.max) {
+      if (a.dps.mean < b.dps.mean) {
         return 1;
       }
 
-      if (a.dps.max < b.dps.max) {
+      if (a.dps.mean > b.dps.mean) {
         return -1;
       }
 
@@ -94,7 +107,7 @@ class App extends React.Component<WithStyles<'chip'>> {
           </Toolbar>
         </AppBar>
 
-        <ExpansionPanel>
+        <ExpansionPanel expanded={true}>
           <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
             <Typography color="inherit" type="title">Raid Summary</Typography>
           </ExpansionPanelSummary>
@@ -104,7 +117,7 @@ class App extends React.Component<WithStyles<'chip'>> {
               {this.renderChip('DPS (Mean)', report.sim.statistics.raid_dps.mean.toLocaleString())}
             </div>
 
-            <div style={{flexBasis: '100%'}}>
+            <div style={{flexBasis: '100%', marginBottom: '1rem'}}>
               <HighchartsChart
                 colors={[
                   indigo[200],
@@ -126,9 +139,10 @@ class App extends React.Component<WithStyles<'chip'>> {
                 }}
               >
                 <Chart
+                  backgroundColor={indigo[50]}
                   borderColor={indigo[500]}
                   borderWidth={1}
-                  backgroundColor={indigo[50]}
+                  height={raidDps.length * 50}
                   inverted={true}
                   type="boxplot"
                 />
@@ -159,6 +173,37 @@ class App extends React.Component<WithStyles<'chip'>> {
 
                 <Tooltip/>
               </HighchartsChart>
+            </div>
+
+            <Divider/>
+
+            <div style={{flexBasis: '100%'}}>
+              <Paper className={this.props.classes.raidEventsPaper}>
+                <Typography type="headline" component="h3">Raid Events</Typography>
+                <List>
+                  {report.sim.raid_events.map((raidEvent, index) => {
+                    const {name, ...conditions} = raidEvent;
+
+                    let conditionsStringPieces = [];
+
+                    for (const key in conditions) {
+                      if (conditions.hasOwnProperty(key)) {
+                        conditionsStringPieces.push(`${key}=${conditions[key]}`);
+                      }
+                    }
+
+                    return (
+                      <ListItem key={index}>
+                        <ListItemText
+                          className={this.props.classes.raidEventItem}
+                          primary={name}
+                          secondary={conditionsStringPieces.join(',')}
+                        />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              </Paper>
             </div>
           </ExpansionPanelDetails>
         </ExpansionPanel>
