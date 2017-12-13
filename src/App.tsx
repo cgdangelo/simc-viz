@@ -26,6 +26,49 @@ import './App.css';
 
 require('highcharts/highcharts-more')(Highcharts);
 
+Highcharts.setOptions({
+  chart: {
+    backgroundColor: indigo[50],
+    borderColor: indigo[500],
+    borderWidth: 1,
+  },
+  colors: [
+    indigo[200],
+    indigo[500],
+  ],
+  plotOptions: {
+    column: {
+      borderColor: indigo[500],
+    },
+    boxplot: {
+      fillColor: 'rgba(0, 0, 0, 0)',
+      whiskerLength: '50%',
+    },
+  },
+  title: {
+    style: {
+      color: grey[900],
+      fontFamily: 'Roboto, sans-serif',
+      fontWeight: 'bold',
+    },
+  },
+  xAxis: {
+    labels: {
+      style: {
+        color: grey[700],
+        fontFamily: 'Roboto',
+        fontSize: '1rem',
+        fontWeight: 'bold',
+      },
+    },
+    lineColor: indigo[500],
+    tickColor: indigo[500],
+  },
+  yAxis: {
+    gridLineColor: indigo[100],
+  },
+});
+
 const report: JsonReport = require('./report.json');
 
 const styles = ((theme: Theme) => ({
@@ -117,54 +160,25 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
           </div>
           <div style={{flexBasis: '100%', marginBottom: '1rem'}}>
             <HighchartsChart
-              colors={[
-                indigo[200],
-                indigo[500],
-              ]}
-              plotOptions={{
-                boxplot: {
-                  fillColor: 'rgba(0, 0, 0, 0)',
-                  whiskerLength: '50%',
-                },
-              }}
               title={{
-                style: {
-                  color: grey[900],
-                  fontFamily: 'Roboto, sans-serif',
-                  fontWeight: 'bold',
-                },
                 text: 'Damage per Second',
               }}
             >
               <Chart
-                backgroundColor={indigo[50]}
-                borderColor={indigo[500]}
-                borderWidth={1}
                 height={raidDps.length * 50}
                 inverted={true}
               />
 
               <XAxis
                 categories={raidDps.map((record) => record.name)}
-                labels={{
-                  style: {
-                    color: grey[700],
-                    fontFamily: 'Roboto',
-                    fontSize: '1rem',
-                    fontWeight: 'bold',
-                  },
-                }}
-                lineColor={indigo[500]}
-                tickColor={indigo[500]}
                 type="category"
               />
 
               <YAxis
                 id="stackedDps"
-                gridLineColor={indigo[100]}
                 labels={false}
               >
-                <ColumnSeries borderColor={indigo[500]} name="Damage per Second" data={stackedBarData}/>
+                <ColumnSeries name="Damage per Second" data={stackedBarData}/>
                 <BoxPlotSeries name="Damage per Second" data={boxPlotData}/>
               </YAxis>
 
@@ -237,7 +251,6 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
           <XAxis categories={playersByApm.map((player) => player.name)} type="category"/>
           <YAxis id="stackedApm">
             <ColumnSeries
-              borderColor={indigo[500]}
               name="Actions per Minute"
               data={playersByApm.map((player) => player.apm)}
             />
