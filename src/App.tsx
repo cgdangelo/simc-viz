@@ -38,8 +38,6 @@ import {
   XAxis,
   YAxis,
 } from 'react-jsx-highcharts';
-import './App.css';
-import play = Simulate.play;
 
 require('highcharts/highcharts-more')(Highcharts);
 
