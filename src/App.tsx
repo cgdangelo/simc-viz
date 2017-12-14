@@ -1,21 +1,37 @@
 import * as Highcharts from 'highcharts';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import AppBar from 'material-ui/AppBar';
+import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
-import { grey, indigo } from 'material-ui/colors';
+import {
+  blue,
+  brown,
+  deepPurple,
+  green,
+  grey,
+  indigo,
+  lightBlue,
+  lightGreen,
+  orange,
+  pink,
+  purple,
+  red,
+  yellow,
+} from 'material-ui/colors';
 import Divider from 'material-ui/Divider';
 import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
-import List, { ListItem, ListItemText } from 'material-ui/List';
+import List, { ListItem, ListItemAvatar, ListItemText } from 'material-ui/List';
 import Paper from 'material-ui/Paper';
 import { Theme } from 'material-ui/styles';
 import withStyles, { WithStyles } from 'material-ui/styles/withStyles';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import * as React from 'react';
+import { Simulate } from 'react-dom/test-utils';
 import {
+  BarSeries,
   BoxPlotSeries,
   Chart,
-  BarSeries,
   HighchartsChart,
   Tooltip,
   withHighcharts,
@@ -23,8 +39,38 @@ import {
   YAxis,
 } from 'react-jsx-highcharts';
 import './App.css';
+import play = Simulate.play;
 
 require('highcharts/highcharts-more')(Highcharts);
+
+const classColorMap = {
+  'frost death knight': red[500],
+  'unholy death knight': red[500],
+  'havoc demon hunter': purple[500],
+  'balance druid': orange[500],
+  'feral druid': orange[500],
+  'beast mastery hunter': green[500],
+  'marksmanship hunter': green[500],
+  'survival hunter': green[500],
+  'arcane mage': lightBlue[500],
+  'fire mage': lightBlue[500],
+  'frost mage': lightBlue[500],
+  'windwalker monk': lightGreen[500],
+  'retribution paladin': pink[500],
+  'shadow priest': grey[200],
+  'assassination rogue': yellow[500],
+  'outlaw rogue': yellow[500],
+  'subtlety rogue': yellow[500],
+  'elemental shaman': blue[700],
+  'enhancement shaman': blue[700],
+  'affliction warlock': deepPurple[500],
+  'demonology warlock': deepPurple[500],
+  'destruction warlock': deepPurple[500],
+  'arms warrior': brown[500],
+  'fury warrior': brown[500],
+
+  'default': indigo[200],
+};
 
 Highcharts.setOptions({
   chart: {
@@ -32,18 +78,14 @@ Highcharts.setOptions({
     borderColor: indigo[500],
     borderWidth: 1,
   },
-  colors: [
-    indigo[200],
-    indigo[500],
-  ],
   lang: {
     thousandsSep: ',',
   },
   plotOptions: {
     bar: {
-      borderColor: indigo[500],
       dataLabels: {
         align: 'left',
+        color: 'contrast',
         crop: false,
         enabled: true,
         format: '{point.y:,.0f}',
@@ -56,10 +98,13 @@ Highcharts.setOptions({
           fontSize: '1rem',
         },
         verticalAlign: 'middle',
+        x: 5,
+        y: 3,
       },
     },
     boxplot: {
-      fillColor: 'rgba(0, 0, 0, 0)',
+      color: 'black',
+      fillColor: 'rgba(255, 255, 255, 0.2)',
       whiskerLength: '50%',
     },
   },
@@ -67,7 +112,6 @@ Highcharts.setOptions({
     style: {
       color: grey[900],
       fontFamily: 'Roboto, sans-serif',
-      fontWeight: 'bold',
     },
   },
   tooltip: {
@@ -76,18 +120,19 @@ Highcharts.setOptions({
   xAxis: {
     labels: {
       style: {
-        color: grey[700],
         fontFamily: 'Roboto',
         fontSize: '1rem',
-        fontWeight: 'bold',
       },
-      y: 5,
+      y: 6,
     },
     lineColor: indigo[500],
     tickColor: indigo[500],
   },
   yAxis: {
     gridLineColor: indigo[100],
+    labels: {
+      enabled: false,
+    },
   },
 });
 
@@ -149,9 +194,20 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
     );
   }
 
+  getColorBySpecialization(specialization: string) {
+    const lowerSpecialization = specialization.toLowerCase();
+
+    if (lowerSpecialization in classColorMap) {
+      return classColorMap[lowerSpecialization];
+    }
+
+    return indigo[500];
+  }
+
   renderRaidSummary() {
     const raidDps = report.sim.players.map((player) => ({
       name: player.name,
+      specialization: player.specialization,
       dps: player.collected_data.dps,
     }));
 
@@ -166,7 +222,10 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
 
       return 0;
     });
-    const stackedBarData = raidDps.map((record) => [record.dps.mean]);
+    const stackedBarData = raidDps.map((record) => ({
+      color: this.getColorBySpecialization(record.specialization),
+      y: record.dps.mean,
+    }));
     const boxPlotData = raidDps.map((record) => (
       [record.dps.min, record.dps.q1, record.dps.median, record.dps.q3, record.dps.max]
     ));
@@ -175,7 +234,7 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
       'Raid Summary',
 
       (
-        <div>
+        <div style={{flexBasis: '100%'}}>
           <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
             {this.renderChip('Damage (Mean)', report.sim.statistics.total_dmg.mean.toLocaleString())}
             {this.renderChip('DPS (Mean)', report.sim.statistics.raid_dps.mean.toLocaleString())}
@@ -185,6 +244,7 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
               title={{
                 text: 'Damage per Second',
               }}
+              width='100%'
             >
               <Chart
                 height={raidDps.length * 50}
@@ -197,7 +257,6 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
 
               <YAxis
                 id="stackedDps"
-                labels={false}
               >
                 <BarSeries
                   name="Damage per Second"
@@ -216,25 +275,34 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
             <Paper className={this.props.classes.raidEventsPaper}>
               <Typography type="headline" component="h3">Raid Events</Typography>
               <List>
-                {report.sim.raid_events.map((raidEvent, index) => {
+                {report.sim.raid_events.map((raidEvent, index, array) => {
                   const {name, ...conditions} = raidEvent;
 
                   let conditionsStringPieces = [];
 
                   for (const key in conditions) {
                     if (conditions.hasOwnProperty(key)) {
-                      conditionsStringPieces.push(`${key}=${conditions[key]}`);
+                      conditionsStringPieces.push(`${key}: ${conditions[key]}`);
                     }
                   }
 
                   return (
-                    <ListItem key={index}>
-                      <ListItemText
-                        className={this.props.classes.raidEventItem}
-                        primary={name}
-                        secondary={conditionsStringPieces.join(',')}
-                      />
-                    </ListItem>
+                    <div key={index}>
+                      <ListItem>
+                        <ListItemAvatar>
+                          <Avatar>
+                            <Typography>{index + 1}</Typography>
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText
+                          className={this.props.classes.raidEventItem}
+                          primary={<b>{name}</b>}
+                          secondary={conditionsStringPieces.join(', ')}
+                        />
+                      </ListItem>
+
+                      {index !== array.length - 1 && <Divider/>}
+                    </div>
                   );
                 })}
               </List>
@@ -245,11 +313,12 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
     );
   }
 
-  renderDpsVariance() {
+  renderApm() {
     const playersByApm = report.sim.players
       .map((player) => ({
-        name: player.name,
         apm: (player.collected_data.executed_foreground_actions.mean / player.collected_data.fight_length.mean * 60),
+        name: player.name,
+        specialization: player.specialization,
       }))
       .sort((a, b) => {
         if (a.apm < b.apm) {
@@ -263,23 +332,81 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
         return 0;
       });
 
+    return (
+      <HighchartsChart>
+        <Chart
+          height={report.sim.players.length * 50}
+        />
+        <XAxis categories={playersByApm.map((player) => player.name)} type="category"/>
+        <YAxis id="stackedApm">
+          <BarSeries
+            name="Actions per Minute"
+            data={playersByApm.map((player) => ({
+              color: this.getColorBySpecialization(player.specialization),
+              y: player.apm,
+            }))}
+          />
+        </YAxis>
+        <Tooltip/>
+      </HighchartsChart>
+    );
+  }
+
+  renderDpsVariance() {
+    const playersByDpsVariance = report.sim.players
+      .map((player) => ({
+        name: player.name,
+        specialization: player.specialization,
+        variance: player.collected_data.dps.std_dev / player.collected_data.dps.mean * 100,
+      }))
+      .sort((a, b) => {
+        if (a.variance < b.variance) {
+          return 1;
+        }
+
+        if (a.variance > b.variance) {
+          return -1;
+        }
+
+        return 0;
+      });
+
+    return (
+      <HighchartsChart>
+        <Chart
+          height={report.sim.players.length * 50}
+        />
+        <XAxis categories={playersByDpsVariance.map((player) => player.name)} type="category"/>
+        <YAxis id="stackedDpsVariance">
+          <BarSeries
+            name="Actions per Minute"
+            data={playersByDpsVariance.map((player) => ({
+              color: this.getColorBySpecialization(player.specialization),
+              y: player.variance,
+            }))}
+            dataLabels={{
+              format: '{point.y:,.1f}',
+            }}
+          />
+        </YAxis>
+        <Tooltip/>
+      </HighchartsChart>
+    );
+  }
+
+  renderApmDpsVariance() {
     return this.renderExpansionPanel(
       'Actions per Minute / DPS Variance Summary',
 
       (
-        <HighchartsChart>
-          <Chart
-            height={report.sim.players.length * 50}
-          />
-          <XAxis categories={playersByApm.map((player) => player.name)} type="category"/>
-          <YAxis id="stackedApm">
-            <BarSeries
-              name="Actions per Minute"
-              data={playersByApm.map((player) => player.apm)}
-            />
-          </YAxis>
-          <Tooltip/>
-        </HighchartsChart>
+        <div style={{display: 'flex', flexBasis: '100%', justifyContent: 'space-between'}}>
+          <div style={{flexBasis: '49%'}}>
+            {this.renderApm()}
+          </div>
+          <div style={{flexBasis: '49%'}}>
+            {this.renderDpsVariance()}
+          </div>
+        </div>
       ),
     );
   }
@@ -309,7 +436,7 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
 
         {this.renderRaidSummary()}
 
-        {this.renderDpsVariance()}
+        {this.renderApmDpsVariance()}
 
         {report.sim.players.map((player, index) => (
           <ExpansionPanel key={index}>
