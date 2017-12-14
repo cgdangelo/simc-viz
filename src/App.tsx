@@ -7,7 +7,6 @@ import {
   blue,
   brown,
   deepPurple,
-  green,
   grey,
   indigo,
   lightBlue,
@@ -16,6 +15,7 @@ import {
   pink,
   purple,
   red,
+  teal,
   yellow,
 } from 'material-ui/colors';
 import Divider from 'material-ui/Divider';
@@ -24,10 +24,11 @@ import List, { ListItem, ListItemAvatar, ListItemText } from 'material-ui/List';
 import Paper from 'material-ui/Paper';
 import { Theme } from 'material-ui/styles';
 import withStyles, { WithStyles } from 'material-ui/styles/withStyles';
+import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import Toolbar from 'material-ui/Toolbar';
+import { default as MuiTooltip } from 'material-ui/Tooltip';
 import Typography from 'material-ui/Typography';
 import * as React from 'react';
-import { Simulate } from 'react-dom/test-utils';
 import {
   BarSeries,
   BoxPlotSeries,
@@ -47,13 +48,13 @@ const classColorMap = {
   'havoc demon hunter': purple[500],
   'balance druid': orange[500],
   'feral druid': orange[500],
-  'beast mastery hunter': green[500],
-  'marksmanship hunter': green[500],
-  'survival hunter': green[500],
+  'beast mastery hunter': lightGreen[500],
+  'marksmanship hunter': lightGreen[500],
+  'survival hunter': lightGreen[500],
   'arcane mage': lightBlue[500],
   'fire mage': lightBlue[500],
   'frost mage': lightBlue[500],
-  'windwalker monk': lightGreen[500],
+  'windwalker monk': teal.A400,
   'retribution paladin': pink[500],
   'shadow priest': grey[200],
   'assassination rogue': yellow[500],
@@ -66,6 +67,35 @@ const classColorMap = {
   'destruction warlock': deepPurple[500],
   'arms warrior': brown[500],
   'fury warrior': brown[500],
+
+  'default': indigo[200],
+};
+
+const classResourceMap = {
+  'frost death knight': 'runic_power',
+  'unholy death knight': 'runic_power',
+  'havoc demon hunter': 'fury',
+  'balance druid': 'astral_power',
+  'feral druid': 'energy',
+  'beast mastery hunter': 'focus',
+  'marksmanship hunter': 'focus',
+  'survival hunter': 'focus',
+  'arcane mage': 'mana',
+  'fire mage': 'mana',
+  'frost mage': 'mana',
+  'windwalker monk': 'energy',
+  'retribution paladin': 'holy_power',
+  'shadow priest': 'insanity',
+  'assassination rogue': 'energy',
+  'outlaw rogue': 'energy',
+  'subtlety rogue': 'energy',
+  'elemental shaman': 'maelstrom',
+  'enhancement shaman': 'maelstrom',
+  'affliction warlock': 'mana',
+  'demonology warlock': 'mana',
+  'destruction warlock': 'mana',
+  'arms warrior': 'rage',
+  'fury warrior': 'rage',
 
   'default': indigo[200],
 };
@@ -110,6 +140,7 @@ Highcharts.setOptions({
     style: {
       color: grey[900],
       fontFamily: 'Roboto, sans-serif',
+      fontWeight: 'bold',
     },
   },
   tooltip: {
@@ -123,11 +154,12 @@ Highcharts.setOptions({
       },
       y: 6,
     },
-    lineColor: indigo[500],
-    tickColor: indigo[500],
+    lineWidth: 0,
+    tickLength: 0,
+    gridLineColor: 'transparent',
   },
   yAxis: {
-    gridLineColor: indigo[100],
+    gridLineColor: 'transparent',
     labels: {
       enabled: false,
     },
@@ -202,6 +234,16 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
     return indigo[500];
   }
 
+  getPrimaryResourceBySpecialization(specialization: string) {
+    const lowerSpecialization = specialization.toLowerCase();
+
+    if (lowerSpecialization in classResourceMap) {
+      return classResourceMap[lowerSpecialization];
+    }
+
+    return 'mana';
+  }
+
   renderRaidSummary() {
     const raidDps = report.sim.players.map((player) => ({
       name: player.name,
@@ -234,15 +276,15 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
       (
         <div style={{flexBasis: '100%'}}>
           <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
-            {this.renderChip('Damage (Mean)', report.sim.statistics.total_dmg.mean.toLocaleString())}
-            {this.renderChip('DPS (Mean)', report.sim.statistics.raid_dps.mean.toLocaleString())}
+            {this.renderChip('Damage (Mean)', Highcharts.numberFormat(report.sim.statistics.total_dmg.mean, 0))}
+            {this.renderChip('DPS (Mean)', Highcharts.numberFormat(report.sim.statistics.raid_dps.mean, 0))}
           </div>
           <div style={{flexBasis: '100%', marginBottom: '1rem'}}>
             <HighchartsChart
               title={{
                 text: 'Damage per Second',
               }}
-              width='100%'
+              width="100%"
             >
               <Chart
                 height={raidDps.length * 50}
@@ -331,7 +373,11 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
       });
 
     return (
-      <HighchartsChart>
+      <HighchartsChart
+        title={{
+          text: 'Actions per Minute',
+        }}
+      >
         <Chart
           height={report.sim.players.length * 50}
         />
@@ -370,14 +416,18 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
       });
 
     return (
-      <HighchartsChart>
+      <HighchartsChart
+        title={{
+          text: 'DPS Variance Percentage',
+        }}
+      >
         <Chart
           height={report.sim.players.length * 50}
         />
         <XAxis categories={playersByDpsVariance.map((player) => player.name)} type="category"/>
         <YAxis id="stackedDpsVariance">
           <BarSeries
-            name="Actions per Minute"
+            name="DPS Variance Percentage"
             data={playersByDpsVariance.map((player) => ({
               color: this.getColorBySpecialization(player.specialization),
               y: player.variance,
@@ -409,6 +459,125 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
     );
   }
 
+  renderActor(actor: Actor, index: number) {
+    const primaryResource = this.getPrimaryResourceBySpecialization(actor.specialization);
+    const dpsError = report.sim.options.confidence_estimator * actor.collected_data.dps.mean_std_dev;
+    const dpsErrorPercent = dpsError * 100 / actor.collected_data.dps.mean;
+    const dpr = actor.collected_data.dmg.mean / actor.collected_data.resource_lost[primaryResource].mean;
+
+    return (
+      <ExpansionPanel key={index}>
+        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+          <Typography style={{flexBasis: '20%'}} type="title">{actor.name}</Typography>
+          <Typography color="secondary">
+            {Highcharts.numberFormat(actor.collected_data.dps.mean, 0)} DPS
+          </Typography>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails style={{flexWrap: 'wrap'}}>
+          <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
+            {this.renderChip('Race', actor.race)}
+            {this.renderChip('Specialization', actor.specialization)}
+            {this.renderChip('Level', actor.level)}
+            {this.renderChip('Role', actor.role)}
+          </div>
+
+          <div style={{flexBasis: '100%'}}>
+            <ExpansionPanel>
+              <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
+                <Typography type="subheading">Results, Spec &amp; Gear</Typography>
+              </ExpansionPanelSummary>
+              <ExpansionPanelDetails>
+                <Paper>
+                  <Table style={{overflow: 'visible'}}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell numeric={true}>
+                          <MuiTooltip
+                            PopperProps={{
+                              PopperClassName: 'muiPopper',
+                            }}
+                            title="Average damage per active player duration."
+                          >
+                            <div>DPS</div>
+                          </MuiTooltip>
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          <MuiTooltip
+                            PopperProps={{
+                              PopperClassName: 'muiPopper',
+                            }}
+                            title="Average damage per fight duration."
+                          >
+                            <div>
+                              DPSe
+                            </div>
+                          </MuiTooltip>
+                        </TableCell>
+                        <TableCell>
+                          <MuiTooltip
+                            PopperProps={{
+                              PopperClassName: 'muiPopper',
+                            }}
+                            title="Estimator for the 95.00% confidence interval."
+                          >
+                            <div>
+                              DPS Error
+                            </div>
+                          </MuiTooltip>
+                        </TableCell>
+                        <TableCell>
+                          <MuiTooltip
+                            PopperProps={{
+                              PopperClassName: 'muiPopper',
+                            }}
+                            title="This is the range of values containing 95.00% of the data, roughly centered on the mean."
+                          >
+                            <div>
+                              DPS Range
+                            </div>
+                          </MuiTooltip>
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          <MuiTooltip
+                            PopperProps={{
+                              PopperClassName: 'muiPopper',
+                            }}
+                            title="Average damage per resource point spent."
+                          >
+                            <div>
+                              DPR
+                            </div>
+                          </MuiTooltip>
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell numeric={true}>
+                          {Highcharts.numberFormat(actor.collected_data.dps.mean, 0)}
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          {Highcharts.numberFormat(actor.collected_data.dpse.mean, 0)}
+                        </TableCell>
+                        <TableCell>
+                          {Highcharts.numberFormat(dpsError, 0)} / {Highcharts.numberFormat(dpsErrorPercent, 3)}%
+                        </TableCell>
+                        <TableCell>DPS Range</TableCell>
+                        <TableCell numeric={true}>
+                          {Highcharts.numberFormat(dpr, 0)} / {primaryResource}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </Paper>
+              </ExpansionPanelDetails>
+            </ExpansionPanel>
+          </div>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
+    );
+  }
+
   render() {
     const {simulation_length: fightLength} = report.sim.statistics;
 
@@ -437,12 +606,7 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
         {this.renderApmDpsVariance()}
 
         {report.sim.players.map((player, index) => (
-          <ExpansionPanel key={index}>
-            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-              <Typography style={{flexBasis: '20%'}}>{player.name}</Typography>
-              <Typography color="secondary">{player.collected_data.dps.mean.toLocaleString()} DPS</Typography>
-            </ExpansionPanelSummary>
-          </ExpansionPanel>
+          this.renderActor(player, index)
         ))}
       </div>
     );

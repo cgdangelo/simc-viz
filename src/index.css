@@ -1,0 +1,9 @@
+body {
+  margin: 0;
+}
+
+.muiPopper > div {
+  font-size: 0.85rem;
+  font-weight: normal;
+  text-align: center;
+}
