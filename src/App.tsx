@@ -5,6 +5,7 @@ import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
 import {
   blue,
+  blueGrey,
   brown,
   deepPurple,
   grey,
@@ -102,8 +103,10 @@ const classResourceMap = {
 
 Highcharts.setOptions({
   chart: {
-    backgroundColor: indigo[50],
-    borderColor: indigo[500],
+    // backgroundColor: indigo[50],
+    // borderColor: indigo[500],
+    backgroundColor: blueGrey[900],
+    borderColor: blueGrey[700],
     borderWidth: 1,
   },
   lang: {
@@ -111,6 +114,7 @@ Highcharts.setOptions({
   },
   plotOptions: {
     bar: {
+      borderColor: 'transparent',
       dataLabels: {
         align: 'left',
         color: 'contrast',
@@ -121,7 +125,7 @@ Highcharts.setOptions({
         overflow: 'none',
         padding: 0,
         style: {
-          color: grey[700],
+          color: grey[50],
           fontFamily: 'Roboto, sans-serif',
           fontSize: '1rem',
         },
@@ -131,14 +135,15 @@ Highcharts.setOptions({
       },
     },
     boxplot: {
-      color: 'black',
-      fillColor: 'rgba(255, 255, 255, 0.2)',
+      color: grey[50],
+      fillColor: blueGrey[700],
+      lineWidth: 2,
       whiskerLength: '50%',
     },
   },
   title: {
     style: {
-      color: grey[900],
+      color: grey[50],
       fontFamily: 'Roboto, sans-serif',
       fontWeight: 'bold',
     },
@@ -149,6 +154,7 @@ Highcharts.setOptions({
   xAxis: {
     labels: {
       style: {
+        color: grey[50],
         fontFamily: 'Roboto',
         fontSize: '1rem',
       },
@@ -461,9 +467,13 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
 
   renderActor(actor: Actor, index: number) {
     const primaryResource = this.getPrimaryResourceBySpecialization(actor.specialization);
+    const primaryResourceLost = actor.collected_data.resource_lost[primaryResource].mean;
+    const dpr = actor.collected_data.dmg.mean / primaryResourceLost;
+
     const dpsError = report.sim.options.confidence_estimator * actor.collected_data.dps.mean_std_dev;
     const dpsErrorPercent = dpsError * 100 / actor.collected_data.dps.mean;
-    const dpr = actor.collected_data.dmg.mean / actor.collected_data.resource_lost[primaryResource].mean;
+
+    const waitingTimeMean = actor.collected_data.waiting_time && actor.collected_data.waiting_time.mean || 0;
 
     return (
       <ExpansionPanel key={index}>
@@ -479,15 +489,16 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
             {this.renderChip('Specialization', actor.specialization)}
             {this.renderChip('Level', actor.level)}
             {this.renderChip('Role', actor.role)}
+            {this.renderChip('Position', 'Not in JSON')}
           </div>
 
           <div style={{flexBasis: '100%'}}>
-            <ExpansionPanel>
+            <ExpansionPanel elevation={5}>
               <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
                 <Typography type="subheading">Results, Spec &amp; Gear</Typography>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
-                <Paper>
+                <Paper style={{flexBasis: '50%', marginRight: '1rem'}}>
                   <Table style={{overflow: 'visible'}}>
                     <TableHead>
                       <TableRow>
@@ -562,9 +573,95 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
                         <TableCell>
                           {Highcharts.numberFormat(dpsError, 0)} / {Highcharts.numberFormat(dpsErrorPercent, 3)}%
                         </TableCell>
-                        <TableCell>DPS Range</TableCell>
+                        <TableCell>Not in JSON</TableCell>
                         <TableCell numeric={true}>
-                          {Highcharts.numberFormat(dpr, 0)} / {primaryResource}
+                          {Highcharts.numberFormat(dpr, 0)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </Paper>
+
+                <Paper style={{flexBasis: '50%'}}>
+                  <Table style={{overflow: 'visible'}}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell numeric={true}>
+                          <MuiTooltip
+                            PopperProps={{
+                              PopperClassName: 'muiPopper',
+                            }}
+                            title="Average primary resource points consumed per second."
+                          >
+                            <div>RPS Out</div>
+                          </MuiTooltip>
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          <MuiTooltip
+                            PopperProps={{
+                              PopperClassName: 'muiPopper',
+                            }}
+                            title="Average primary resource points generated per second."
+                          >
+                            <div>RPS In</div>
+                          </MuiTooltip>
+                        </TableCell>
+                        <TableCell>
+                          Primary Resource
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          <MuiTooltip
+                            PopperProps={{
+                              PopperClassName: 'muiPopper',
+                            }}
+                            title="This is the percentage of time in which no action can be taken other than autoattacks. This can be caused by resource starvation, lockouts, and timers."
+                          >
+                            <div>Waiting</div>
+                          </MuiTooltip>
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          <MuiTooltip
+                            PopperProps={{
+                              PopperClassName: 'muiPopper',
+                            }}
+                            title="Average number of actions executed per minute."
+                          >
+                            <div>APM</div>
+                          </MuiTooltip>
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          Active
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          Skill
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell numeric={true}>
+                          {Highcharts.numberFormat(primaryResourceLost / actor.collected_data.fight_length.mean)}
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          Not in JSON
+                        </TableCell>
+                        <TableCell>
+                          {primaryResource}
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          {Highcharts.numberFormat(waitingTimeMean / actor.collected_data.fight_length.mean * 100, 3)}%
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          {Highcharts.numberFormat(actor.collected_data.executed_foreground_actions.mean / actor.collected_data.fight_length.mean * 60, 1)}
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          {Highcharts.numberFormat(
+                            actor.collected_data.fight_length.mean / report.sim.statistics.simulation_length.mean * 100,
+                            3,
+                          )}%
+                        </TableCell>
+                        <TableCell numeric={true}>
+                          Not in JSON
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -579,7 +676,10 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
   }
 
   render() {
-    const {simulation_length: fightLength} = report.sim.statistics;
+    const {max_time: fightLength, vary_combat_length: varyCombatLength} = report.sim.options;
+    const minFightLength = fightLength * (1 - varyCombatLength)
+    const maxFightLength = fightLength * (1 + varyCombatLength)
+    const fightLengthString = `${Highcharts.numberFormat(minFightLength, 0)}${maxFightLength > minFightLength ? ` - ${Highcharts.numberFormat(maxFightLength, 0)}` : null}`;
 
     return (
       <div>
@@ -595,7 +695,7 @@ class App extends React.Component<WithStyles<'chip' | 'raidEventItem' | 'raidEve
               {this.renderChip('Timestamp', `${report.build_date} ${report.build_time}`)}
               {this.renderChip('Iterations', report.sim.options.iterations)}
               {this.renderChip('Target Error', report.sim.options.target_error)}
-              {this.renderChip('Fight Length', `${fightLength.min.toFixed()} - ${fightLength.max.toFixed()}`)}
+              {this.renderChip('Fight Length', fightLengthString)}
               {this.renderChip('Fight Style', report.sim.options.fight_style)}
             </div>
           </Toolbar>
