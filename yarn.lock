@@ -5520,6 +5520,10 @@ type-is@~1.6.15:
     media-typer "0.3.0"
     mime-types "~2.1.15"
 
+typeface-roboto-mono@^0.0.44:
+  version "0.0.44"
+  resolved "https://registry.yarnpkg.com/typeface-roboto-mono/-/typeface-roboto-mono-0.0.44.tgz#dbce32d7c59c73de61e0259531e527257413d0a3"
+
 typeface-roboto@^0.0.45:
   version "0.0.45"
   resolved "https://registry.yarnpkg.com/typeface-roboto/-/typeface-roboto-0.0.45.tgz#4686bdd505b2db3b7ba0a980d216eb3d5aec4788"
