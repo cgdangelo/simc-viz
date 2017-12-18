@@ -112,6 +112,7 @@ Highcharts.setOptions({
     borderColor: blueGrey[300],
     style: {
       color: grey[50],
+      textShadow: '1px 1px 1px #000000',
     },
     valueDecimals: 1,
   },
