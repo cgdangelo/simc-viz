@@ -36,9 +36,12 @@ const styles = (theme: Theme) => ({
     },
   },
 
-  raidEventsPaper: theme.mixins.gutters({
-    paddingTop: theme.spacing.unit * 2,
-  }),
+  raidEventsPaper: {
+    flexBasis: '100%',
+    ...theme.mixins.gutters({
+      paddingTop: theme.spacing.unit * 2,
+    }),
+  },
 });
 
 class RaidSummary extends React.PureComponent<WithStyles<'raidEventItem' | 'raidEventsPaper'> & RaidSummaryProps> {
@@ -81,64 +84,61 @@ class RaidSummary extends React.PureComponent<WithStyles<'raidEventItem' | 'raid
         <Divider/>
 
         <ExpansionPanelDetails style={{flexWrap: 'wrap'}}>
-          <div style={{flexBasis: '100%'}}>
-            <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
-              <Chip label="Damage (Mean)" value={Highcharts.numberFormat(totalDamage, 0)}/>
-              <Chip label="DPS (Mean)" value={Highcharts.numberFormat(raidDps, 0)}/>
-            </div>
-            <Paper elevation={5} style={{marginBottom: '1rem'}}>
-              <HighchartsChart title={{text: 'Damage per Second'}}>
-                <Chart height={Math.max(playersByDps.length * 50, 300)}/>
-
-                <XAxis categories={playersByDps.map((record) => record.name)} type="category"/>
-
-                <YAxis id="stackedDps">
-                  <BarSeries name="Damage per Second" data={stackedBarData}/>
-                  <BoxPlotSeries name="Damage per Second" data={boxPlotData}/>
-                </YAxis>
-
-                <Tooltip/>
-              </HighchartsChart>
-            </Paper>
-
-            <div style={{flexBasis: '100%'}}>
-              <Paper className={this.props.classes.raidEventsPaper} elevation={5}>
-                <Typography type="headline" component="h3">Raid Events</Typography>
-                <List>
-                  {raidEvents.map((raidEvent, index, array) => {
-                    const {name, ...conditions} = raidEvent;
-
-                    let conditionsStringPieces = [];
-
-                    for (const key in conditions) {
-                      if (conditions.hasOwnProperty(key)) {
-                        conditionsStringPieces.push(`${key}: ${conditions[key]}`);
-                      }
-                    }
-
-                    return (
-                      <div key={index}>
-                        <ListItem>
-                          <ListItemAvatar>
-                            <Avatar>
-                              <Typography>{index + 1}</Typography>
-                            </Avatar>
-                          </ListItemAvatar>
-                          <ListItemText
-                            className={this.props.classes.raidEventItem}
-                            primary={<b>{name}</b>}
-                            secondary={conditionsStringPieces.join(', ')}
-                          />
-                        </ListItem>
-
-                        {index !== array.length - 1 && <Divider/>}
-                      </div>
-                    );
-                  })}
-                </List>
-              </Paper>
-            </div>
+          <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
+            <Chip label="Damage (Mean)" value={Highcharts.numberFormat(totalDamage, 0)}/>
+            <Chip label="DPS (Mean)" value={Highcharts.numberFormat(raidDps, 0)}/>
           </div>
+
+          <Paper elevation={5} style={{flexBasis: '100%', marginBottom: '1rem'}}>
+            <HighchartsChart title={{text: 'Damage per Second'}}>
+              <Chart height={Math.max(playersByDps.length * 50, 300)}/>
+
+              <XAxis categories={playersByDps.map((record) => record.name)} type="category"/>
+
+              <YAxis id="stackedDps">
+                <BarSeries name="Damage per Second" data={stackedBarData}/>
+                <BoxPlotSeries name="Damage per Second" data={boxPlotData}/>
+              </YAxis>
+
+              <Tooltip/>
+            </HighchartsChart>
+          </Paper>
+
+          <Paper className={this.props.classes.raidEventsPaper} elevation={5}>
+            <Typography type="headline" component="h3">Raid Events</Typography>
+            <List>
+              {raidEvents.map((raidEvent, index, array) => {
+                const {name, ...conditions} = raidEvent;
+
+                let conditionsStringPieces = [];
+
+                for (const key in conditions) {
+                  if (conditions.hasOwnProperty(key)) {
+                    conditionsStringPieces.push(`${key}: ${conditions[key]}`);
+                  }
+                }
+
+                return (
+                  <div key={index}>
+                    <ListItem>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <Typography>{index + 1}</Typography>
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        className={this.props.classes.raidEventItem}
+                        primary={<b>{name}</b>}
+                        secondary={conditionsStringPieces.join(', ')}
+                      />
+                    </ListItem>
+
+                    {index !== array.length - 1 && <Divider/>}
+                  </div>
+                );
+              })}
+            </List>
+          </Paper>
         </ExpansionPanelDetails>
       </ExpansionPanel>
     );
