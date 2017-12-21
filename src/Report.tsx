@@ -1,4 +1,5 @@
 import * as React from 'react';
+import ApmDpsVariance from './ApmDpsVariance';
 import RaidSummary from './RaidSummary';
 import TitleBar from './TitleBar';
 
@@ -38,7 +39,7 @@ export default class Report extends React.PureComponent<ReportProps> {
 
         <RaidSummary {...{players, raidDps, raidEvents, totalDamage}}/>
 
-        {/*{this.renderApmDpsVariance()}*/}
+        <ApmDpsVariance players={players}/>
 
         {/*{simulationData.sim.players.map((player, index) => (*/}
         {/*this.renderActor(player, index)*/}

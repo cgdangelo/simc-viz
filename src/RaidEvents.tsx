@@ -32,7 +32,7 @@ class RaidEvents extends React.PureComponent<WithStyles<'raidEventItem' | 'raidE
 
     return (
       <Paper className={this.props.classes.raidEventsPaper} elevation={5}>
-        <Typography type="headline" component="h3">Raid Events</Typography>
+        <Typography type="subheading">Raid Events</Typography>
         <List>
           {raidEvents.map((raidEvent, index) => {
             const {name, ...conditions} = raidEvent;
