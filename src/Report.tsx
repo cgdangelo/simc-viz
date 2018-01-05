@@ -1,4 +1,5 @@
 import * as React from 'react';
+import ActorPanel from './ActorPanel';
 import ApmDpsVariance from './ApmDpsVariance';
 import RaidSummary from './RaidSummary';
 import TitleBar from './TitleBar';
@@ -14,6 +15,7 @@ export default class Report extends React.PureComponent<ReportProps> {
       build_time: buildTime,
       sim: {
         options: {
+          confidence_estimator: confidenceEstimator,
           iterations,
           max_time: maxTime,
           fight_style: fightStyle,
@@ -25,6 +27,9 @@ export default class Report extends React.PureComponent<ReportProps> {
         statistics: {
           raid_dps: {
             mean: raidDps,
+          },
+          simulation_length: {
+            mean: simulationLength
           },
           total_dmg: {
             mean: totalDamage,
@@ -41,9 +46,9 @@ export default class Report extends React.PureComponent<ReportProps> {
 
         <ApmDpsVariance players={players}/>
 
-        {/*{simulationData.sim.players.map((player, index) => (*/}
-        {/*this.renderActor(player, index)*/}
-        {/*))}*/}
+        {players.map((actor, index) => (
+          <ActorPanel {...{actor, confidenceEstimator, simulationLength, key: index}}/>
+        ))}
       </div>
     );
   }
