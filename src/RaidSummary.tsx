@@ -2,6 +2,7 @@ import { numberFormat } from 'highcharts';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import Divider from 'material-ui/Divider';
 import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
+import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import * as React from 'react';
 import Chip from './Chip';
@@ -27,15 +28,21 @@ class RaidSummary extends React.PureComponent<RaidSummaryProps> {
 
         <Divider/>
 
-        <ExpansionPanelDetails style={{flexWrap: 'wrap'}}>
-          <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
-            <Chip label="Damage (Mean)" value={numberFormat(totalDamage, 0)}/>
-            <Chip label="DPS (Mean)" value={numberFormat(raidDps, 0)}/>
-          </div>
+        <ExpansionPanelDetails>
+          <Grid container={true}>
+            <Grid item={true} xs={12}>
+              <Chip label="Damage (Mean)" value={numberFormat(totalDamage, 0)}/>
+              <Chip label="DPS (Mean)" value={numberFormat(raidDps, 0)}/>
+            </Grid>
 
-          <StackedRaidDps {...{players}}/>
+            <Grid item={true} xs={12}>
+              <StackedRaidDps {...{players}}/>
+            </Grid>
 
-          <RaidEvents {...{raidEvents}}/>
+            <Grid item={true} xs={12}>
+              <RaidEvents {...{raidEvents}}/>
+            </Grid>
+          </Grid>
         </ExpansionPanelDetails>
       </ExpansionPanel>
     );

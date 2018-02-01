@@ -1,21 +1,13 @@
 import * as Highcharts from 'highcharts';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
+import Divider from 'material-ui/Divider';
 import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
 import Paper from 'material-ui/Paper';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import { default as MuiTooltip } from 'material-ui/Tooltip';
 import Typography from 'material-ui/Typography';
 import * as React from 'react';
-import {
-  BarSeries,
-  BoxPlotSeries,
-  Chart,
-  HighchartsChart,
-  Tooltip,
-  withHighcharts,
-  XAxis,
-  YAxis,
-} from 'react-jsx-highcharts';
+import { withHighcharts } from 'react-jsx-highcharts';
 import Chip from './Chip';
 import { getPrimaryResourceBySpecialization } from './util/Specializations';
 
@@ -46,6 +38,9 @@ class ActorPanel extends React.PureComponent<ActorPanelProps> {
             {Highcharts.numberFormat(actor.collected_data.dps.mean, 0)} DPS
           </Typography>
         </ExpansionPanelSummary>
+
+        <Divider/>
+
         <ExpansionPanelDetails style={{flexWrap: 'wrap'}}>
           <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
             <Chip label="Race" value={actor.race}/>
@@ -103,7 +98,10 @@ class ActorPanel extends React.PureComponent<ActorPanelProps> {
                           PopperProps={{
                             PopperClassName: 'muiPopper',
                           }}
-                          title="This is the range of values containing 95.00% of the data, roughly centered on the mean."
+                          title={
+                            'This is the range of values containing 95.00% of the data, roughly centered on ' +
+                            'the mean.'
+                          }
                         >
                           <div>
                             DPS Range
@@ -176,7 +174,10 @@ class ActorPanel extends React.PureComponent<ActorPanelProps> {
                           PopperProps={{
                             PopperClassName: 'muiPopper',
                           }}
-                          title="This is the percentage of time in which no action can be taken other than autoattacks. This can be caused by resource starvation, lockouts, and timers."
+                          title={
+                            'This is the percentage of time in which no action can be taken other than autoattacks. ' +
+                            'This can be caused by resource starvation, lockouts, and timers.'
+                          }
                         >
                           <div>Waiting</div>
                         </MuiTooltip>
@@ -214,7 +215,11 @@ class ActorPanel extends React.PureComponent<ActorPanelProps> {
                         {Highcharts.numberFormat(waitingTimeMean / actor.collected_data.fight_length.mean * 100, 3)}%
                       </TableCell>
                       <TableCell numeric={true}>
-                        {Highcharts.numberFormat(actor.collected_data.executed_foreground_actions.mean / actor.collected_data.fight_length.mean * 60, 1)}
+                        {Highcharts.numberFormat(
+                          actor.collected_data.executed_foreground_actions.mean /
+                          actor.collected_data.fight_length.mean * 60,
+                          1,
+                        )}
                       </TableCell>
                       <TableCell numeric={true}>
                         {Highcharts.numberFormat(

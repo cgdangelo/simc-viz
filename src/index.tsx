@@ -1,64 +1,66 @@
 import * as Highcharts from 'highcharts';
 import { blueGrey, grey } from 'material-ui/colors';
-import { Theme } from 'material-ui/styles';
+import Reboot from 'material-ui/Reboot';
 import createMuiTheme from 'material-ui/styles/createMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import 'typeface-roboto';
 import 'typeface-roboto-mono';
-import './index.css';
 import registerServiceWorker from './registerServiceWorker';
 import Report from './Report';
 
-const muiTheme = (theme: Theme) => (
-  createMuiTheme({
-    palette: {
-      type: 'dark',
-      background: {
-        paper: blueGrey[800],
-        default: blueGrey[700],
-        contentFrame: grey[900],
-      },
-      text: {
-        divider: blueGrey[900],
+const muiTheme = createMuiTheme({
+  palette: {
+    type: 'dark',
+    background: {
+      paper: blueGrey[800],
+      default: blueGrey[700],
+    },
+    divider: blueGrey[900],
+  },
+  overrides: {
+    MuiAppBar: {
+      colorPrimary: {
+        backgroundColor: blueGrey[900],
       },
     },
-    overrides: {
-      MuiAppBar: {
-        colorPrimary: {
-          backgroundColor: blueGrey[900],
-        },
-      },
-      MuiBackdrop: {
-        root: {
-          backgroundColor: grey[900],
-        },
-      },
-      MuiPaper: {
-        root: {
-          color: grey[50],
-        },
-      },
-      MuiTableCell: {
-        head: {
-          backgroundColor: blueGrey[900],
-        },
-        root: {
-          borderBottomColor: blueGrey[900],
-        },
-      },
-      MuiTooltip: {
-        tooltip: {
-          backgroundColor: blueGrey[600],
-          border: '1px solid',
-          borderColor: blueGrey[300],
-          padding: '0.25rem',
-        },
+    MuiBackdrop: {
+      root: {
+        backgroundColor: grey[900],
       },
     },
-  })
-);
+    MuiChip: {
+      root: {
+        backgroundColor: blueGrey[700],
+      },
+    },
+    MuiPaper: {
+      root: {
+        color: grey[50],
+      },
+    },
+    MuiTableCell: {
+      typeHead: {
+        backgroundColor: blueGrey[900],
+      },
+      root: {
+        borderBottomColor: blueGrey[900],
+      },
+    },
+    MuiTooltip: {
+      popper: {
+        textAlign: 'center',
+      },
+      tooltip: {
+        backgroundColor: blueGrey[600],
+        border: '1px solid',
+        borderColor: blueGrey[300],
+        padding: '0.25rem',
+      },
+    },
+  },
+});
 
 require('highcharts/highcharts-more')(Highcharts);
 
@@ -141,7 +143,7 @@ const simulationData: JsonReport = require('./report.json');
 
 ReactDOM.render(
   <MuiThemeProvider theme={muiTheme}>
-    {/*<App />*/}
+    <Reboot/>
     <Report {...{simulationData}}/>
   </MuiThemeProvider>,
   document.getElementById('root') as HTMLElement,

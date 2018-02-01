@@ -1,15 +1,6 @@
 import * as Highcharts from 'highcharts';
 import * as React from 'react';
-import {
-  BarSeries,
-  BoxPlotSeries,
-  Chart,
-  HighchartsChart,
-  Tooltip,
-  withHighcharts,
-  XAxis,
-  YAxis,
-} from 'react-jsx-highcharts';
+import { BarSeries, Chart, HighchartsChart, Tooltip, withHighcharts, XAxis, YAxis } from 'react-jsx-highcharts';
 import { getColorBySpecialization } from './util/Specializations';
 
 interface StackedRaidDpsVarianceProps {

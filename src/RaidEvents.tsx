@@ -1,4 +1,3 @@
-import { numberFormat } from 'highcharts';
 import Avatar from 'material-ui/Avatar';
 import List, { ListItem, ListItemAvatar, ListItemText } from 'material-ui/List';
 import Paper from 'material-ui/Paper';
