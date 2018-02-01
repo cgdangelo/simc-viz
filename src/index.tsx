@@ -1,5 +1,5 @@
 import * as Highcharts from 'highcharts';
-import { blueGrey, grey } from 'material-ui/colors';
+import { blue, blueGrey, grey } from 'material-ui/colors';
 import Reboot from 'material-ui/Reboot';
 import createMuiTheme from 'material-ui/styles/createMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
@@ -18,6 +18,9 @@ const muiTheme = createMuiTheme({
       default: blueGrey[700],
     },
     divider: blueGrey[900],
+    primary: {
+      main: blue[200],
+    },
   },
   overrides: {
     MuiAppBar: {

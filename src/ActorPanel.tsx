@@ -4,13 +4,14 @@ import Button from 'material-ui/Button';
 import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
 import Grid from 'material-ui/Grid';
 import Paper from 'material-ui/Paper';
-import Table, { TableBody, TableCell, TableHead, TableRow, TableSortLabel } from 'material-ui/Table';
+import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import { default as MuiTooltip } from 'material-ui/Tooltip';
 import Typography from 'material-ui/Typography';
 import * as React from 'react';
 import { withHighcharts } from 'react-jsx-highcharts';
 import Chip from './Chip';
 import { getPrimaryResourceBySpecialization } from './util/Specializations';
+import { getTalentLevelByTier } from './util/Talents';
 
 interface ActorPanelProps {
   actor: Actor;
@@ -189,90 +190,65 @@ class ActorPanel extends React.PureComponent<ActorPanelProps> {
                       </Paper>
                     </Grid>
 
-                    {actor.talents.length > 0 && (
-                      <Grid item={true} xs={12}>
-                        <Paper>
-                          <Table>
-                            <TableHead>
-                              <TableRow>
-                                <TableCell>Talents</TableCell>
-                                <TableCell colSpan={actor.talents.length - 1}>
-                                  <Typography align="right">
-                                    <Button href="/">Talent Calculator</Button>
-                                  </Typography>
-                                </TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              <TableRow>
-                                {actor.talents.map((talent, index) => (
-                                  <TableCell key={index}>
-                                    <Button
-                                      href={`//wowhead.com/spell=${talent.spell_id}`}
-                                      data-wowhead={`spell=${talent.spell_id}`}
-                                    >
-                                      {talent.name}
-                                    </Button>
-                                  </TableCell>
-                                ))}
-                              </TableRow>
-                            </TableBody>
-                          </Table>
-                        </Paper>
-                      </Grid>
-                    )}
-
-                    {actor.artifact.length > 0 && (
-                      <Grid item={true} xs={12}>
-                        <Paper>
-                          <Table>
-                            <TableHead>
-                              <TableRow>
-                                <TableCell>Artifact</TableCell>
-                                <TableCell colSpan={4}>
-                                  <Typography align="right">
-                                    <Button href="/">Artifact Calculator</Button>
-                                  </Typography>
-                                </TableCell>
-                              </TableRow>
-                              <TableRow>
-                                <TableCell>Name</TableCell>
-                                <TableCell numeric={true}>
-                                  <TableSortLabel>Total Rank</TableSortLabel>
-                                </TableCell>
-                                <TableCell numeric={true}>
-                                  <TableSortLabel>Artifact Rank</TableSortLabel>
-                                </TableCell>
-                                <TableCell numeric={true}>
-                                  <TableSortLabel>Relic Rank</TableSortLabel>
-                                </TableCell>
-                                <TableCell numeric={true}>
-                                  <TableSortLabel>Crucible Rank</TableSortLabel>
-                                </TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {actor.artifact.map((trait, index) => (
-                                <TableRow key={index}>
-                                  <TableCell>
-                                    <Button
-                                      href={`//wowhead.com/spell=${trait.spell_id}`}
-                                      data-wowhead={`spell=${trait.spell_id}`}
-                                    >
-                                      {trait.name}
-                                    </Button>
-                                  </TableCell>
-                                  <TableCell numeric={true}>{trait.total_rank}</TableCell>
-                                  <TableCell numeric={true}>{trait.purchased_rank}</TableCell>
-                                  <TableCell numeric={true}>{trait.relic_rank}</TableCell>
-                                  <TableCell numeric={true}>{trait.crucible_rank}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </Paper>
-                      </Grid>
-                    )}
+                    <Grid item={true} xs={12}>
+                      <Paper>
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Talents</TableCell>
+                              <TableCell type="body">
+                                <Grid container={true} justify="space-between">
+                                  {actor.talents.map((talent, index) => (
+                                    <Grid key={index} item={true} style={{textAlign: 'center'}}>
+                                      <Typography type="button" style={{paddingTop: '8px'}}>
+                                        {getTalentLevelByTier(talent.tier)}&nbsp;
+                                      </Typography>
+                                      <Button
+                                        key={index}
+                                        href={`//wowhead.com/spell=${talent.spell_id}`}
+                                        data-wowhead={`spell=${talent.spell_id}`}
+                                      >
+                                        <Typography
+                                          type="button"
+                                          color="primary"
+                                        >
+                                          {talent.name}
+                                        </Typography>
+                                      </Button>
+                                    </Grid>
+                                  ))}
+                                </Grid>
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell>Artifact</TableCell>
+                              <TableCell type="body">
+                                <Grid container={true} justify="space-between">
+                                  {actor.artifact.map((trait, index) => (
+                                    <Grid key={index} item={true}>
+                                      <Button
+                                        key={index}
+                                        href={`//wowhead.com/spell=${trait.spell_id}`}
+                                        data-wowhead={`spell=${trait.spell_id}`}
+                                      >
+                                        <Typography
+                                          type="button"
+                                          color="primary"
+                                        >
+                                          {trait.name}
+                                        </Typography>
+                                        {/* tslint:disable-next-line */}
+                                        <Typography type="button" style={{marginLeft: '4px'}}>{trait.total_rank} ({trait.purchased_rank} + {trait.relic_rank} + {trait.crucible_rank})</Typography>
+                                      </Button>
+                                    </Grid>
+                                  ))}
+                                </Grid>
+                              </TableCell>
+                            </TableRow>
+                          </TableHead>
+                        </Table>
+                      </Paper>
+                    </Grid>
                   </Grid>
                 </ExpansionPanelDetails>
               </ExpansionPanel>
