@@ -54,7 +54,7 @@ class RaidEvents extends React.PureComponent<WithStyles<'raidEventItem' | 'raidE
                 </ListItemAvatar>
                 <ListItemText
                   className={this.props.classes.raidEventItem}
-                  primary={<Typography type="subheading">{name}</Typography>}
+                  primary={name}
                   secondary={conditionsStringPieces.join(', ')}
                 />
               </ListItem>
