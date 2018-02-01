@@ -1,6 +1,6 @@
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import Divider from 'material-ui/Divider';
 import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
+import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import * as React from 'react';
 import StackedRaidApm from './StackedRaidApm';
@@ -20,15 +20,15 @@ class ApmDpsVariance extends React.PureComponent<ApmDpsVarianceProps> {
           <Typography color="inherit" type="title">APM / DPS Variance</Typography>
         </ExpansionPanelSummary>
 
-        <Divider/>
-
-        <ExpansionPanelDetails style={{flexWrap: 'wrap', justifyContent: 'space-between'}}>
-          <div style={{width: '49.5%'}}>
-            <StackedRaidApm players={players}/>
-          </div>
-          <div style={{width: '49.5%'}}>
-            <StackedRaidDpsVariance players={players}/>
-          </div>
+        <ExpansionPanelDetails>
+          <Grid container={true}>
+            <Grid item={true} xs={6}>
+              <StackedRaidApm players={players}/>
+            </Grid>
+            <Grid item={true} xs={6}>
+              <StackedRaidDpsVariance players={players}/>
+            </Grid>
+          </Grid>
         </ExpansionPanelDetails>
       </ExpansionPanel>
     );

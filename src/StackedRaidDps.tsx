@@ -49,7 +49,7 @@ class StackedRaidDps extends React.PureComponent<StackedRaidDpsProps> {
     ));
 
     return (
-      <Paper elevation={5} style={{flexBasis: '100%', marginBottom: '1rem'}}>
+      <Paper elevation={5}>
         <HighchartsChart title={{text: 'Damage per Second'}}>
           <Chart height={Math.max(playersByDps.length * 50, 300)}/>
 

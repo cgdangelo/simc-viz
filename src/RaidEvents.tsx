@@ -14,6 +14,7 @@ const styles = (theme: Theme) => ({
   raidEventItem: {
     '& > p': {
       fontFamily: '"Roboto Mono", Consolas, "Courier New", monospace',
+      fontSize: '0.8rem',
     },
   },
 
@@ -53,7 +54,7 @@ class RaidEvents extends React.PureComponent<WithStyles<'raidEventItem' | 'raidE
                 </ListItemAvatar>
                 <ListItemText
                   className={this.props.classes.raidEventItem}
-                  primary={<b>{name}</b>}
+                  primary={<Typography type="subheading">{name}</Typography>}
                   secondary={conditionsStringPieces.join(', ')}
                 />
               </ListItem>

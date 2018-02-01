@@ -1,4 +1,5 @@
 import * as Highcharts from 'highcharts';
+import Paper from 'material-ui/Paper';
 import * as React from 'react';
 import { BarSeries, Chart, HighchartsChart, Tooltip, withHighcharts, XAxis, YAxis } from 'react-jsx-highcharts';
 import { getColorBySpecialization } from './util/Specializations';
@@ -35,17 +36,19 @@ class StackedRaidApm extends React.PureComponent<StackedRaidApmProps> {
     }));
 
     return (
-      <HighchartsChart title={{text: 'Actions per Minute'}}>
-        <Chart height={Math.max(playersByApm.length * 50, 300)}/>
+      <Paper elevation={5}>
+        <HighchartsChart title={{text: 'Actions per Minute'}}>
+          <Chart height={Math.max(playersByApm.length * 50, 300)}/>
 
-        <XAxis categories={playersByApm.map((player) => player.name)} type="category"/>
+          <XAxis categories={playersByApm.map((player) => player.name)} type="category"/>
 
-        <YAxis id="stackedApm">
-          <BarSeries name="Actions per Minute" data={stackedBarData}/>
-        </YAxis>
+          <YAxis id="stackedApm">
+            <BarSeries name="Actions per Minute" data={stackedBarData}/>
+          </YAxis>
 
-        <Tooltip/>
-      </HighchartsChart>
+          <Tooltip/>
+        </HighchartsChart>
+      </Paper>
     );
   }
 }

@@ -1,6 +1,5 @@
 import { numberFormat } from 'highcharts';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import Divider from 'material-ui/Divider';
 import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
@@ -21,12 +20,10 @@ class RaidSummary extends React.PureComponent<RaidSummaryProps> {
     const {players, raidDps, raidEvents, totalDamage} = this.props;
 
     return (
-      <ExpansionPanel>
+      <ExpansionPanel defaultExpanded={true}>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
-          <Typography color="inherit" type="title">Raid Summary</Typography>
+          <Typography type="title">Raid Summary</Typography>
         </ExpansionPanelSummary>
-
-        <Divider/>
 
         <ExpansionPanelDetails>
           <Grid container={true}>

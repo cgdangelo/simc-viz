@@ -1,6 +1,5 @@
 import * as Highcharts from 'highcharts';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import Divider from 'material-ui/Divider';
 import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
 import Paper from 'material-ui/Paper';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
@@ -38,8 +37,6 @@ class ActorPanel extends React.PureComponent<ActorPanelProps> {
             {Highcharts.numberFormat(actor.collected_data.dps.mean, 0)} DPS
           </Typography>
         </ExpansionPanelSummary>
-
-        <Divider/>
 
         <ExpansionPanelDetails style={{flexWrap: 'wrap'}}>
           <div style={{display: 'flex', flexBasis: '100%', marginBottom: '1rem'}}>
