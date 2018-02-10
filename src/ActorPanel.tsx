@@ -1,6 +1,5 @@
 import * as Highcharts from 'highcharts';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import Button from 'material-ui/Button';
 import ExpansionPanel, { ExpansionPanelDetails, ExpansionPanelSummary } from 'material-ui/ExpansionPanel';
 import Grid from 'material-ui/Grid';
 import Paper from 'material-ui/Paper';
@@ -12,6 +11,7 @@ import { withHighcharts } from 'react-jsx-highcharts';
 import Chip from './Chip';
 import { getPrimaryResourceBySpecialization } from './util/Specializations';
 import { getTalentLevelByTier } from './util/Talents';
+import { LinearProgress } from 'material-ui/Progress';
 
 interface ActorPanelProps {
   actor: Actor;
@@ -197,24 +197,15 @@ class ActorPanel extends React.PureComponent<ActorPanelProps> {
                             <TableRow>
                               <TableCell>Talents</TableCell>
                               <TableCell type="body">
-                                <Grid container={true} justify="space-between">
+                                <Grid container={true} justify="space-around">
                                   {actor.talents.map((talent, index) => (
-                                    <Grid key={index} item={true} style={{textAlign: 'center'}}>
-                                      <Typography type="button" style={{paddingTop: '8px'}}>
+                                    <Grid key={index} item={true}>
+                                      <Typography type="button" align="center">
                                         {getTalentLevelByTier(talent.tier)}&nbsp;
                                       </Typography>
-                                      <Button
-                                        key={index}
-                                        href={`//wowhead.com/spell=${talent.spell_id}`}
-                                        data-wowhead={`spell=${talent.spell_id}`}
-                                      >
-                                        <Typography
-                                          type="button"
-                                          color="primary"
-                                        >
-                                          {talent.name}
-                                        </Typography>
-                                      </Button>
+                                      <Typography type="button" color="primary">
+                                        {talent.name}
+                                      </Typography>
                                     </Grid>
                                   ))}
                                 </Grid>
@@ -223,24 +214,44 @@ class ActorPanel extends React.PureComponent<ActorPanelProps> {
                             <TableRow>
                               <TableCell>Artifact</TableCell>
                               <TableCell type="body">
-                                <Grid container={true} justify="space-between">
+                                <Grid container={true} justify="space-around">
                                   {actor.artifact.map((trait, index) => (
-                                    <Grid key={index} item={true}>
-                                      <Button
-                                        key={index}
-                                        href={`//wowhead.com/spell=${trait.spell_id}`}
-                                        data-wowhead={`spell=${trait.spell_id}`}
-                                      >
-                                        <Typography
-                                          type="button"
-                                          color="primary"
-                                        >
+                                    trait.spell_id < 250000 && (
+                                      <Grid key={index} item={true}>
+                                        <Typography type="button" align="center">
+                                          {/* tslint:disable-next-line */}
+                                          {trait.total_rank} ({trait.purchased_rank} + {trait.relic_rank} + {trait.crucible_rank})
+                                        </Typography>
+                                        <div style={{margin: '0.25rem 0'}}>
+                                          <LinearProgress mode="determinate" value={(trait.purchased_rank / 4) * 100}/>
+                                          <LinearProgress mode="determinate" value={(trait.relic_rank / 3) * 100}/>
+                                          <LinearProgress mode="determinate" value={(trait.crucible_rank / 3) * 100}/>
+                                        </div>
+                                        <Typography type="button" color="primary">
                                           {trait.name}
                                         </Typography>
-                                        {/* tslint:disable-next-line */}
-                                        <Typography type="button" style={{marginLeft: '4px'}}>{trait.total_rank} ({trait.purchased_rank} + {trait.relic_rank} + {trait.crucible_rank})</Typography>
-                                      </Button>
-                                    </Grid>
+                                      </Grid>
+                                    )
+                                  ))}
+                                </Grid>
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell>Crucible</TableCell>
+                              <TableCell type="body">
+                                <Grid container={true} justify="space-around">
+                                  {actor.artifact.map((trait, index) => (
+                                    trait.spell_id > 250000 && (
+                                      <Grid key={index} item={true}>
+                                        <Typography type="button" align="center">
+                                          {trait.total_rank}
+                                        </Typography>
+                                        <LinearProgress mode="determinate" value={(trait.crucible_rank / 3) * 100}/>
+                                        <Typography type="button" color="primary">
+                                          {trait.name}
+                                        </Typography>
+                                      </Grid>
+                                    )
                                   ))}
                                 </Grid>
                               </TableCell>
