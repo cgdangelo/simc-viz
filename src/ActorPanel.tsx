@@ -220,31 +220,35 @@ class ActorPanel extends React.PureComponent<ActorPanelProps> {
                                 </Grid>
                               </TableCell>
                             </TableRow>
-                            <TableRow>
-                              <TableCell>Artifact</TableCell>
-                              <TableCell type="body">
-                                <Grid container={true} justify="space-between">
-                                  {actor.artifact.map((trait, index) => (
-                                    <Grid key={index} item={true}>
-                                      <Button
-                                        key={index}
-                                        href={`//wowhead.com/spell=${trait.spell_id}`}
-                                        data-wowhead={`spell=${trait.spell_id}`}
-                                      >
-                                        <Typography
-                                          type="button"
-                                          color="primary"
+                            {actor.artifact && (
+                              <TableRow>
+                                <TableCell>Artifact</TableCell>
+                                <TableCell type="body">
+                                  <Grid container={true} justify="space-between">
+                                    {actor.artifact.map((trait, index) => (
+                                      <Grid key={index} item={true}>
+                                        <Button
+                                          key={index}
+                                          href={`//wowhead.com/spell=${trait.spell_id}`}
+                                          data-wowhead={`spell=${trait.spell_id}`}
                                         >
-                                          {trait.name}
-                                        </Typography>
-                                        {/* tslint:disable-next-line */}
-                                        <Typography type="button" style={{marginLeft: '4px'}}>{trait.total_rank} ({trait.purchased_rank} + {trait.relic_rank} + {trait.crucible_rank})</Typography>
-                                      </Button>
-                                    </Grid>
-                                  ))}
-                                </Grid>
-                              </TableCell>
-                            </TableRow>
+                                          <Typography
+                                            type="button"
+                                            color="primary"
+                                          >
+                                            {trait.name}
+                                          </Typography>
+                                          {/* tslint:disable-next-line */}
+                                          <Typography type="button" style={{marginLeft: '4px'}}>{trait.total_rank}
+                                            ({trait.purchased_rank} + {trait.relic_rank}
+                                            + {trait.crucible_rank})</Typography>
+                                        </Button>
+                                      </Grid>
+                                    ))}
+                                  </Grid>
+                                </TableCell>
+                              </TableRow>
+                            )}
                           </TableHead>
                         </Table>
                       </Paper>

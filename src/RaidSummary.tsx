@@ -36,9 +36,11 @@ class RaidSummary extends React.PureComponent<RaidSummaryProps> {
               <StackedRaidDps {...{players}}/>
             </Grid>
 
-            <Grid item={true} xs={12}>
-              <RaidEvents {...{raidEvents}}/>
-            </Grid>
+            {raidEvents && (
+              <Grid item={true} xs={12}>
+                <RaidEvents {...{raidEvents}}/>
+              </Grid>
+            )}
           </Grid>
         </ExpansionPanelDetails>
       </ExpansionPanel>
